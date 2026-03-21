@@ -2182,6 +2182,15 @@ function showApiKeyModal(){
 function closeApiKeyModal(){
   document.getElementById('apiKeyModal').style.display='none';
 }
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
 function saveApiKey(){
   const key=document.getElementById('apiKeyInput').value.trim();
   if(!key){showToast('⚠ Key boş olamaz');return;}
