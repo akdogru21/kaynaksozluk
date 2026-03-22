@@ -1165,7 +1165,7 @@ async function sbUpdateNote(id,n){return sbFetch('/rest/v1/notes?id=eq.'+id,'PAT
 async function sbDeleteNote(id){return sbFetch('/rest/v1/notes?id=eq.'+id,'DELETE');}
 
 let useCloud=false;
-async function initCloud(){
+async async function initCloud(){
   try{
     const ws=await sbGetWords();
     if(ws&&Array.isArray(ws)){
