@@ -617,6 +617,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       <button class="fbtn" onclick="setFilter('sy',this)">Süryanice</button>
       <button class="fbtn" onclick="setFilter('en',this)">İngilizce</button>
       <button class="fbtn" onclick="setFilter('type',this)">Türe Göre</button>
+      <button class="fbtn" id="eksikTamamlaBtn" onclick="eksikTamamla(this)" style="border-color:#b8962e;color:#b8962e">⚠ Eksik Tamamla</button>
       <button class="fbtn" id="aiSearchBtn" onclick="aiSearch()" style="display:none;border-color:var(--acc);color:var(--acc)">✨ Yapay Zeka ile Ara</button>
     </div>
   </div>
@@ -1461,6 +1462,7 @@ function sortT(key){
 }
 function getFiltered(){
   let list=[...words];
+  if(showOnlyEksik) list=list.filter(function(w){return !w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';});
   if(q){const ql=q.toLowerCase();list=list.filter(w=>{
     if(filterLang==='tr')return(w.tr||'').toLowerCase().includes(ql);
     if(filterLang==='sy')return(w.sy||'').toLowerCase().includes(ql);
@@ -1504,6 +1506,41 @@ function toggleTable(){
   if(arrow) arrow.style.transform=tableOpen?'rotate(0deg)':'rotate(-90deg)';
 }
 
+
+/* ── EKSİK TAMAMLA ──────────────────────────── */
+var showOnlyEksik = false;
+var eksikMod = false;
+
+function eksikTamamla(el){
+  eksikMod = !eksikMod;
+  if(eksikMod){
+    el.style.background = 'rgba(184,150,46,.15)';
+    el.style.fontWeight = '700';
+    el.textContent = '⚠ Eksik Tamamla ✕';
+    var eksikler = words.filter(function(w){
+      return !w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
+    });
+    if(eksikler.length === 0){
+      showToast('✓ Tüm kelimelerin çevirisi tam!');
+      eksikMod = false;
+      el.style.background = '';
+      el.style.fontWeight = '';
+      el.textContent = '⚠ Eksik Tamamla';
+      return;
+    }
+    showToast('⚠ ' + eksikler.length + ' eksik kelime listelendi');
+    showOnlyEksik = true;
+    if(!tableOpen) toggleTable();
+    render();
+  } else {
+    el.style.background = '';
+    el.style.fontWeight = '';
+    el.textContent = '⚠ Eksik Tamamla';
+    showOnlyEksik = false;
+    render();
+  }
+}
+
 function render(){
   const f=getFiltered();
   document.getElementById('totalCount').textContent=words.length;
@@ -1520,7 +1557,8 @@ function render(){
   tbody.innerHTML=f.map(function(w,i){
     const sy=w.sy||'';
     const isFav=favWords.has(w.id);
-    return '<tr>'
+    const isEksik=!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
+    return '<tr'+(isEksik?' style="background:rgba(184,150,46,.1);border-left:3px solid #b8962e"':'')+'>'
       +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+'</td>'
       +'<td><strong>'+(hl(w.tr,q)||'—')+'</strong></td>'
       +'<td class="tsy">'+(hl(w.sy,q)||'—')+'</td>'
@@ -1529,8 +1567,8 @@ function render(){
       +'<td class="tdate">'+(w.date||'')+'</td>'
       +'<td style="white-space:nowrap">'
       +'<button class="fav-btn'+(isFav?' on':'')+'" onclick="toggleFav('+w.id+')" title="Favori">'+(isFav?'⭐':'☆')+'</button>'
-      +'<button class="ebtn edit-only" onclick="editWord('+w.id+')" title="Düzenle" style="display:none">✏️</button>'
-      +'<button class="dbtn edit-only" onclick="deleteWord('+w.id+')" title="Sil" style="display:none">✕</button>'
+      +'<button class="ebtn edit-only" onclick="editWord('+w.id+')" title="Düzenle" style="display:'+(editMode?'inline-block':'none')+'">✏️</button>'
+      +'<button class="dbtn edit-only" onclick="deleteWord('+w.id+')" title="Sil" style="display:'+(editMode?'inline-block':'none')+'">✕</button>'
       +'</td>'
       +'</tr>';
   }).join('');
