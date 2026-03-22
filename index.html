@@ -1404,6 +1404,7 @@ function addWord(){if(!requireAuth())return;
   words.push(newWord);save();
   if(useCloud){sbAddWord(newWord).then(res=>{if(res&&res[0]){newWord.sbId=res[0].id;save();}}).catch(e=>console.error(e));}
   ['inp_tr','inp_sy','inp_tr2','inp_en'].forEach(i=>document.getElementById(i).value='');
+  const sd=document.getElementById('sedra-status'); if(sd) sd.remove();
   document.getElementById('inp_type').value='';
   document.getElementById('addWrap').classList.remove('open');
   render();showToast('✦ Kelime eklendi');
@@ -2336,12 +2337,62 @@ async function fetchSyriac(){
     if(syTranslit&&!document.getElementById('inp_tr2').value) document.getElementById('inp_tr2').value=syTranslit;
     if(data.en&&!document.getElementById('inp_en').value) document.getElementById('inp_en').value=data.en;
     if(data.type) document.getElementById('inp_type').value=data.type;
-    showToast('✦ Süryanice getirildi');
+    showToast('✦ Süryanice getirildi, SEDRA doğrulanıyor...');
+    // SEDRA doğrulaması
+    if(syScript) verifySedra(syScript);
   }catch(e){
     showToast('⚠ '+e.message);
   }finally{
     btn.textContent='ܐ Getir';btn.disabled=false;
   }
+}
+
+async function verifySedra(syWord){
+  // Harekesiz consonantal forma indir (sadece Süryanice harfleri bırak)
+  const consonantal = syWord.replace(/[؀-ًؕ-ٰٟ݀-݊]/g,'').trim();
+  if(!consonantal) return;
+  try{
+    const r = await fetch('https://sedra.bethmardutho.org/api/word/'+encodeURIComponent(consonantal)+'.json');
+    if(!r.ok) throw new Error('not found');
+    const data = await r.json();
+    if(!data || !data.length){ showSedraStatus(false, null); return; }
+    // SEDRA'dan İngilizce karşılıkları al
+    const engGlosses = data[0]?.glosses?.eng || [];
+    const category = data[0]?.category || '';
+    showSedraStatus(true, engGlosses, category);
+  }catch(e){
+    showSedraStatus(false, null);
+  }
+}
+
+function showSedraStatus(found, glosses, category){
+  // Mevcut durum göstergesini kaldır
+  const existing = document.getElementById('sedra-status');
+  if(existing) existing.remove();
+  
+  const syEl = document.getElementById('inp_sy');
+  if(!syEl) return;
+  
+  const div = document.createElement('div');
+  div.id = 'sedra-status';
+  div.style.cssText = 'font-size:11px;margin-top:6px;padding:6px 10px;border-radius:6px;font-family:var(--fm);letter-spacing:0.5px;display:flex;align-items:center;gap:6px;';
+  
+  if(found){
+    div.style.background = 'rgba(58,154,90,.12)';
+    div.style.border = '1px solid rgba(58,154,90,.3)';
+    div.style.color = '#3a9a5a';
+    const glossText = glosses && glosses.length ? glosses.slice(0,3).join(', ') : '';
+    const catText = category ? ' · '+category : '';
+    div.innerHTML = '✅ SEDRA doğrulandı' + catText + (glossText ? ' · <em>'+glossText+'</em>' : '');
+  } else {
+    div.style.background = 'rgba(184,150,46,.1)';
+    div.style.border = '1px solid rgba(184,150,46,.3)';
+    div.style.color = 'var(--acc)';
+    div.innerHTML = '⚠ SEDRA'da bulunamadı · Claude tahmini';
+  }
+  
+  syEl.closest('.igroup').appendChild(div);
+  if(found) showToast('✅ SEDRA'da doğrulandı');
 }
 
 /* ── REFERANS ─────────────────────────────── */
@@ -2372,6 +2423,8 @@ function filterRef(){
     });
   }
 }
+
+
 
 /* ── REFERANS ─────────────────────────────── */
 const REF_KEY='sozluk_ref_v2';
