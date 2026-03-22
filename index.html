@@ -862,12 +862,20 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       <div class="tbl-hdr" style=""><span class="tbl-ttl">Kart Ayarları</span></div>
       <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;align-items:flex-end">
         <div>
-          <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:6px">Ön Yüz</div>
-          <div class="lang-tabs" style="gap:6px">
-            <button class="lang-tab active" id="fc-front-tr" onclick="setFcFront('tr',this)">Türkçe</button>
-            <button class="lang-tab" id="fc-front-sy" onclick="setFcFront('sy',this)">Süryanice</button>
-            <button class="lang-tab" id="fc-front-en" onclick="setFcFront('en',this)">İngilizce</button>
-          </div>
+          <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:6px">Soru Dili</div>
+          <select class="wsel" id="fcQuestionLang" style="min-width:130px">
+            <option value="tr">Türkçe</option>
+            <option value="sy">Süryanice</option>
+            <option value="en">İngilizce</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:6px">Cevap Dili</div>
+          <select class="wsel" id="fcAnswerLang" style="min-width:130px">
+            <option value="sy">Süryanice</option>
+            <option value="tr">Türkçe</option>
+            <option value="en">İngilizce</option>
+          </select>
         </div>
         <div>
           <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:6px">Filtre</div>
@@ -3104,19 +3112,8 @@ function getFcQuizOptions(correct, ansLang){
 
 function showFcQuizOptions(){
   var w = fcWords[fcIndex];
-  var fcFront = document.getElementById('fc-front-tr').classList.contains('active') ? 'tr'
-    : document.getElementById('fc-front-sy').classList.contains('active') ? 'sy' : 'en';
-
-  // Ön yüz Süryanice ise cevap Türkçe, ön yüz Türkçe ise cevap Süryanice
-  // Karışık: %50 tr->sy, %50 sy->tr ama seçenekler HEP cevap diline göre
-  var ansLang;
-  if(fcFront === 'sy'){
-    ansLang = 'tr'; // Süryanice görünce Türkçe seç
-  } else if(fcFront === 'tr'){
-    ansLang = 'sy'; // Türkçe görünce Süryanice seç
-  } else {
-    ansLang = 'tr';
-  }
+  var _ql2 = document.getElementById('fcAnswerLang');
+  var ansLang = _ql2 ? _ql2.value : 'tr';
 
   var opts = getFcQuizOptions(w, ansLang);
   var container = document.getElementById('fcQuizOptions');
