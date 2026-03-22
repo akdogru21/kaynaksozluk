@@ -3079,9 +3079,17 @@ function toggleFcMode(){
   }
 }
 
-function getFcQuizOptions(correct){
+function getFcQuizOptions(correct, ansLang){
   // Get 1 wrong option - sometimes from same type, sometimes random
-  var pool = words.filter(function(w){ return w.id !== correct.id; });
+  // Make sure wrong option has different ansLang text than correct
+  var pool = words.filter(function(w){
+    if(w.id === correct.id) return false;
+    if(ansLang && w[ansLang] === correct[ansLang]) return false; // farklı metin
+    return true;
+  });
+  if(!pool.length){
+    pool = words.filter(function(w){ return w.id !== correct.id; });
+  }
   if(!pool.length) return [correct];
 
   var sameType = pool.filter(function(w){ return w.type === correct.type; });
@@ -3098,12 +3106,19 @@ function showFcQuizOptions(){
   var w = fcWords[fcIndex];
   var fcFront = document.getElementById('fc-front-tr').classList.contains('active') ? 'tr'
     : document.getElementById('fc-front-sy').classList.contains('active') ? 'sy' : 'en';
-  // Answer lang is opposite
-  var ansLang = fcFront === 'tr' ? 'sy' : fcFront === 'sy' ? 'tr' : 'tr';
-  // Mix it up for karışık
-  if(Math.random() > 0.5) ansLang = ansLang === 'tr' ? 'sy' : 'tr';
 
-  var opts = getFcQuizOptions(w);
+  // Ön yüz Süryanice ise cevap Türkçe, ön yüz Türkçe ise cevap Süryanice
+  // Karışık: %50 tr->sy, %50 sy->tr ama seçenekler HEP cevap diline göre
+  var ansLang;
+  if(fcFront === 'sy'){
+    ansLang = 'tr'; // Süryanice görünce Türkçe seç
+  } else if(fcFront === 'tr'){
+    ansLang = 'sy'; // Türkçe görünce Süryanice seç
+  } else {
+    ansLang = 'tr';
+  }
+
+  var opts = getFcQuizOptions(w, ansLang);
   var container = document.getElementById('fcQuizOptions');
   var feedback = document.getElementById('fcQuizFeedback');
   var nextBtn = document.getElementById('fcQuizNext');
