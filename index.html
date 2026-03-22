@@ -1489,7 +1489,15 @@ function deleteWord(id){if(!requireAuth())return;
   if(w&&useCloud) sbDeleteWord(w.sbId||w.id).catch(e=>console.error(e));
   words=words.filter(x=>x.id!==id);save();render();showToast('Kelime silindi');
 }
-function clearAll(){if(!confirm('Tüm kelimeler silinecek. Emin misiniz?'))return;words=[];nextId=1;save();render();showToast('Tümü silindi');}
+function clearAll(){
+  const sayi=words.length;
+  if(!confirm('⚠️ UYARI: '+sayi+' kelimelik sözlüğün TAMAMI silinecek!\nBu işlem geri alınamaz.\n\nDevam etmek istiyor musun?')) return;
+  if(!confirm('⚠️ SON UYARI: Silinen kelimeler kurtarılamaz!\nBulut verisinden de silinecek.\n\nGerçekten emin misin?')) return;
+  const girilen=prompt('Silmek için kelime sayısını girin: '+sayi);
+  if(girilen===null) return;
+  if(girilen.trim()!==String(sayi)){showToast('⚠ Hatalı sayı, silme iptal edildi');return;}
+  words=[];nextId=1;save();render();showToast('Tümü silindi');
+}
 function onSearch(v){
   q=v;document.getElementById('clearBtn').classList.toggle('vis',v.length>0);acIdx=-1;
   if(v.length>=1)buildAc(v);else hideAc();render();
