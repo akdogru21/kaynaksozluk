@@ -1153,7 +1153,7 @@ async function askGemini(word){
   const KEY=getGeminiKey();
   if(!KEY) throw new Error('Gemini key yok');
   const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+KEY,{
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+KEY,{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
   });
