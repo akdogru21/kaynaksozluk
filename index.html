@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 [data-theme="gece"]{--bg:#000000;--surf:#111111;--surf2:#1c1c1c;--surf3:#282828;--acc:#ffffff;--acc-l:#ffffff;--acc-d:#bbbbbb;--txt:#ffffff;--txt-d:#999999;--bad:#ff5555;--brd:rgba(255,255,255,.18);--brd-s:rgba(255,255,255,.08);--pb:rgba(255,255,255,.1);--pc:#ffffff;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
-[data-theme="krem"]{--bg:#ffffff;--surf:#ffffff;--surf2:#f2f2f2;--surf3:#e8e8e8;--acc:#000000;--acc-l:#000000;--acc-d:#333333;--txt:#000000;--txt-d:#555555;--bad:#cc2222;--brd:rgba(0,0,0,.18);--brd-s:rgba(0,0,0,.08);--pb:rgba(0,0,0,.06);--pc:#000000;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="krem"]{--bg:#f8f6f0;--surf:#fffef8;--surf2:#f0ede4;--surf3:#e4dfd2;--acc:#b8962e;--acc-l:#d4af4a;--acc-d:#1a2744;--txt:#1a2744;--txt-d:#3d5080;--bad:#cc2222;--brd:rgba(26,39,68,.18);--brd-s:rgba(26,39,68,.08);--pb:rgba(184,150,46,.1);--pc:#b8962e;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 [data-theme="bahar"]{--bg:#fffef9;--surf:#ffffff;--surf2:#f5efe4;--surf3:#ece3d4;--acc:#3a2010;--acc-l:#1e0e04;--acc-d:#7a5a40;--txt:#1e0e04;--txt-d:#6a5040;--bad:#aa2222;--brd:rgba(58,32,16,.22);--brd-s:rgba(58,32,16,.1);--pb:rgba(58,32,16,.07);--pc:#1e0e04;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:1rem;font-weight:500;line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .35s,color .35s}
@@ -382,7 +382,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
       <!-- Tema daireleri -->
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="mini-theme active" id="mt-krem" onclick="setTheme('krem',this)" title="Beyaz Ton" style="background:linear-gradient(135deg,#ffffff 50%,#000000 50%)"></div>
+        <div class="mini-theme active" id="mt-krem" onclick="setTheme('krem',this)" title="Beyaz Ton" style="background:linear-gradient(135deg,#f8f6f0 50%,#1a2744 50%)"></div>
         <div class="mini-theme" id="mt-bahar" onclick="setTheme('bahar',this)" title="Sıcak Ton" style="background:linear-gradient(135deg,#fffef9 50%,#3a2010 50%)"></div>
         <div class="mini-theme" id="mt-gece" onclick="setTheme('gece',this)" title="Koyu Ton" style="background:linear-gradient(135deg,#000000 50%,#ffffff 50%)"></div>
       </div>
