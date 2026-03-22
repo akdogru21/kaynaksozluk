@@ -1636,7 +1636,14 @@ function switchTab(id, el){
   document.querySelectorAll('.icon-nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   if(el) el.classList.add('active');
-  if(id==='sozluk')   if(id==='cumle') renderPool();
+  if(id==='sozluk'){
+    // Sözlük sekmesine her gelişte formu temizle
+    ['inp_tr','inp_sy','inp_tr2','inp_en'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+    const st=document.getElementById('sedra-status'); if(st) st.remove();
+    const addWrap=document.getElementById('addWrap'); if(addWrap) addWrap.classList.remove('open');
+    const typeEl=document.getElementById('inp_type'); if(typeEl) typeEl.value='';
+  }
+  if(id==='cumle') renderPool();
   if(id==='notlar') renderNotes();
   if(id==='referans'){renderRef();}
   if(id==='istatistik') renderIstatistik();
