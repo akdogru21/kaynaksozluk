@@ -1180,7 +1180,7 @@ async function initCloud(){
         save();
       } else if(ws.length>=words.length){
         // Load from cloud only if cloud has more or equal words
-        words=ws.map(w=>({id:w.id,sbId:w.id,tr:w.tr||'',sy:w.sy||'',en:w.en||'',type:w.type||'',date:w.date||today}));
+        words=ws.map(w=>({id:w.id,sbId:w.id,tr:w.tr||'',sy:w.sy||'',en:w.en||'',type:w.type||'',date:w.date||today,created_at:w.created_at||''}));
         nextId=Math.max(...words.map(w=>w.id))+1;
         save();
       }
@@ -3283,7 +3283,7 @@ function renderHomeStats(){
   set('hs-week', words.filter(w=>w.date>=thisWeek).length);
   set('hs-types', types);
   set('hs-favs', favWords.size);
-  const sortedW = words.slice().sort((a,b)=>b.date>a.date?-1:b.date<a.date?1:0);
+  const sortedW = words.slice().sort((a,b)=>b.id-a.id);
   set('hs-last', sortedW[0]?.tr || '—');
 
 }
