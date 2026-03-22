@@ -533,7 +533,6 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <button class="abtn hl edit-only" onclick="toggleAdd()" style="display:none"><span>＋</span>Kelime Ekle</button>
     <button class="abtn" onclick="exportExcel()"><span>⬇</span>Excel İndir</button>
     <button class="fav-filter-btn" id="favFilterBtn" onclick="toggleFavFilter()">⭐ Favoriler</button>
-    <button class="fav-filter-btn" id="eksikFilterBtn" onclick="toggleEksikFilter()">⚠ Eksik</button>
     <button class="abtn" onclick="showPdfModal()"><span>📄</span>PDF İndir</button>
     <button class="abtn edit-only" onclick="document.getElementById('imp').click()" style="display:none"><span>⬆</span>Excel Yükle</button>
     <input type="file" id="imp" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)">
@@ -1165,7 +1164,7 @@ async function sbUpdateNote(id,n){return sbFetch('/rest/v1/notes?id=eq.'+id,'PAT
 async function sbDeleteNote(id){return sbFetch('/rest/v1/notes?id=eq.'+id,'DELETE');}
 
 let useCloud=false;
-async async function initCloud(){
+async function initCloud(){
   try{
     const ws=await sbGetWords();
     if(ws&&Array.isArray(ws)){
@@ -1505,16 +1504,6 @@ function toggleTable(){
   if(arrow) arrow.style.transform=tableOpen?'rotate(0deg)':'rotate(-90deg)';
 }
 
-
-/* ── EKSİK FİLTRE ───────────────────────────── */
-var showOnlyEksik=false;
-function toggleEksikFilter(){
-  showOnlyEksik=!showOnlyEksik;
-  const btn=document.getElementById('eksikFilterBtn');
-  if(btn){btn.classList.toggle('on',showOnlyEksik);btn.textContent=showOnlyEksik?'⚠ Eksik ✕':'⚠ Eksik';}
-  render();
-}
-
 function render(){
   const f=getFiltered();
   document.getElementById('totalCount').textContent=words.length;
@@ -1531,9 +1520,8 @@ function render(){
   tbody.innerHTML=f.map(function(w,i){
     const sy=w.sy||'';
     const isFav=favWords.has(w.id);
-    const isEksik=!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
-    return '<tr'+(isEksik?' style="background:rgba(184,150,46,.12);border-left:3px solid #b8962e"':'')+'>'
-      +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+(isEksik?' <span title="Eksik çeviri" style="color:#b8962e">⚠</span>':'')+' </td>'
+    return '<tr>'
+      +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+'</td>'
       +'<td><strong>'+(hl(w.tr,q)||'—')+'</strong></td>'
       +'<td class="tsy">'+(hl(w.sy,q)||'—')+'</td>'
       +'<td class="ten">'+(hl(w.en,q)||'—')+'</td>'
