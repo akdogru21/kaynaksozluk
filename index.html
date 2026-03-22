@@ -2756,19 +2756,27 @@ function showFcCard(){
   document.getElementById('fcWrong').textContent='✗ '+fcWrongCount;
   document.getElementById('fcBarFill').style.width=(fcIndex/total*100)+'%';
 
-  const langLabels={tr:'Türkçe',sy:'Süryanice',en:'İngilizce'};
-  const backLangs=fcFront==='tr'?['sy','en']:fcFront==='sy'?['tr','en']:['tr','sy'];
+  // Dropdown'lardan dil oku
+  const qSel=document.getElementById('fcQuestionLang');
+  const aSel=document.getElementById('fcAnswerLang');
+  const qLang=qSel?qSel.value:'tr';
+  const aLang=aSel?aSel.value:'sy';
+  fcFront=qLang; // global güncelle
 
-  // Front
-  document.getElementById('fcFrontLabel').textContent=langLabels[fcFront];
-  document.getElementById('fcFrontText').textContent=getFcText(w,fcFront);
+  const langLabels={tr:'Türkçe',sy:'Süryanice',en:'İngilizce'};
+
+  // Front - soru dili
+  document.getElementById('fcFrontText').textContent=getFcText(w,qLang);
   document.getElementById('fcHint').style.display='block';
 
-  // Back (hidden)
+  // Back - cevap dili
   document.getElementById('fcBack').style.display='none';
-  document.getElementById('fcBackLabel').textContent=langLabels[backLangs[0]];
-  document.getElementById('fcBackText').textContent=getFcText(w,backLangs[0]);
-  document.getElementById('fcBackExtra').textContent=backLangs[1]?getFcText(w,backLangs[1]):'';
+  document.getElementById('fcBackLabel').textContent=langLabels[aLang]||aLang;
+  document.getElementById('fcBackText').textContent=getFcText(w,aLang);
+  // Üçüncü dil (soru ve cevap dışındaki)
+  const allLangs=['tr','sy','en'];
+  const thirdLang=allLangs.find(function(l){return l!==qLang&&l!==aLang;})||'';
+  document.getElementById('fcBackExtra').textContent=thirdLang?getFcText(w,thirdLang):'';
 
   // Card style reset
   const card=document.getElementById('fcCard');
@@ -2780,8 +2788,10 @@ function showFcCard(){
   // Type badge
   if(w.type){
     const color=typeColors[w.type]||'#bdbdbd';
-    document.getElementById('fcFrontLabel').innerHTML=langLabels[fcFront]
+    document.getElementById('fcFrontLabel').innerHTML=(langLabels[qLang]||qLang)
       +' <span style="margin-left:8px;padding:2px 8px;border-radius:20px;background:'+color+'22;color:'+color+';font-size:0.7rem">'+w.type+'</span>';
+  } else {
+    document.getElementById('fcFrontLabel').textContent=langLabels[qLang]||qLang;
   }
 
   // Sınav modu
@@ -3113,7 +3123,14 @@ function getFcQuizOptions(correct, ansLang){
 function showFcQuizOptions(){
   var w = fcWords[fcIndex];
   var _ql2 = document.getElementById('fcAnswerLang');
+  var _ql3 = document.getElementById('fcQuestionLang');
   var ansLang = _ql2 ? _ql2.value : 'tr';
+  var qLang2 = _ql3 ? _ql3.value : 'tr';
+  // Soru ve cevap dili aynıysa mantıklı değil - farklı dile geç
+  if(ansLang === qLang2){
+    var allL=['tr','sy','en'];
+    ansLang = allL.find(function(l){return l!==qLang2;})||'tr';
+  }
 
   var opts = getFcQuizOptions(w, ansLang);
   var container = document.getElementById('fcQuizOptions');
