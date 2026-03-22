@@ -3284,7 +3284,8 @@ function renderHomeStats(){
   set('hs-types', types);
   set('hs-favs', favWords.size);
   const sortedW = words.slice().sort((a,b)=>b.id-a.id);
-  set('hs-last', sortedW[0]?.tr || '—');
+  const lastWord = sortedW.find(w=>w.tr && w.tr.trim()!=='');
+  set('hs-last', lastWord?.tr || '—');
 
 }
 
