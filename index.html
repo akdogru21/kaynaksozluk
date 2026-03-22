@@ -1046,15 +1046,24 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <p style="font-size:13px;color:var(--txt-d);margin-bottom:16px;line-height:1.6">Süryanice getirmek için API key gerekli. Key <strong>yalnızca bu cihazda</strong> saklanır.</p>
     <div class="igroup" style="margin-bottom:12px">
       <label class="ilabel">OpenAI Key (Önerilen)</label>
-      <input type="password" class="winput" id="openaiKeyInput" placeholder="sk-proj-...">
+      <div style="display:flex;gap:6px">
+        <input type="password" class="winput" id="openaiKeyInput" placeholder="sk-proj-..." style="flex:1">
+        <button type="button" class="abtn" onclick="deleteKey('openai_api_key','openaiKeyInput')" title="Sil" style="padding:8px 10px;flex-shrink:0">🗑</button>
+      </div>
     </div>
     <div class="igroup" style="margin-bottom:12px">
       <label class="ilabel">Google Gemini Key</label>
-      <input type="password" class="winput" id="geminiKeyInput" placeholder="AIza...">
+      <div style="display:flex;gap:6px">
+        <input type="password" class="winput" id="geminiKeyInput" placeholder="AIza..." style="flex:1">
+        <button type="button" class="abtn" onclick="deleteKey('gemini_api_key','geminiKeyInput')" title="Sil" style="padding:8px 10px;flex-shrink:0">🗑</button>
+      </div>
     </div>
     <div class="igroup" style="margin-bottom:16px">
       <label class="ilabel">Claude Key (Anthropic)</label>
-      <input type="password" class="winput" id="apiKeyInput" placeholder="sk-ant-api03-...">
+      <div style="display:flex;gap:6px">
+        <input type="password" class="winput" id="apiKeyInput" placeholder="sk-ant-..." style="flex:1">
+        <button type="button" class="abtn" onclick="deleteKey('claude_api_key','apiKeyInput')" title="Sil" style="padding:8px 10px;flex-shrink:0">🗑</button>
+      </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="btn btn-p" onclick="saveApiKey()">Kaydet</button>
@@ -1181,6 +1190,21 @@ async function askGemini(word){
   if(!r.ok) throw new Error(d?.error?.message||'Gemini hatası');
   const text=(d?.candidates?.[0]?.content?.parts?.[0]?.text||'').trim().replace(/```json|```/g,'').trim();
   try{return JSON.parse(text);}catch(e){throw new Error('JSON hatası');}
+}
+
+async function askOpenAI(word){
+  const KEY=getClaudeKey();
+  if(!KEY) throw new Error('OpenAI key yok');
+  const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver, başka hiçbir şey yazma: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY},
+    body:JSON.stringify({model:'gpt-4o-mini',max_tokens:300,messages:[{role:'user',content:prompt}]})
+  });
+  const d=await r.json();
+  if(!r.ok) throw new Error(d?.error?.message||'OpenAI hatası');
+  const text=(d?.choices?.[0]?.message?.content||'').trim().replace(/```json|```/g,'').trim();
+  try{return JSON.parse(text);}catch(e){throw new Error('JSON hatası: '+text.slice(0,80));}
 }
 
 /* ── SUPABASE ─────────────────────────────── */
@@ -2287,6 +2311,12 @@ function showToast(msg){
   t.textContent=msg;
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function deleteKey(storageKey, inputId){
+  localStorage.removeItem(storageKey);
+  document.getElementById(inputId).value='';
+  showToast('🗑 Key silindi');
 }
 
 function saveApiKey(){
