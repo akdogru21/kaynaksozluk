@@ -569,7 +569,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
             </div>
           </div>
         </div>
-        <div class="igroup"><label class="ilabel">İngilizce</label><input type="text" class="winput" id="inp_en" placeholder="English word..."></div>
+        <div class="igroup"><label class="ilabel">İngilizce</label><input type="text" class="winput" id="inp_en" placeholder="English word..." oninput="scheduleAutoFetchEn()"></div>
         <div class="igroup">
           <label class="ilabel">Kelime Türü</label>
           <select class="wsel" id="inp_type">
@@ -2275,6 +2275,25 @@ async function fetchEnglish(word){
     const d=await r.json();
     const t=d?.responseData?.translatedText;
     if(t&&t.toLowerCase()!==word.toLowerCase()) enEl.value=t;
+  }catch(e){}
+}
+
+let autoFetchEnTimer=null;
+function scheduleAutoFetchEn(){
+  clearTimeout(autoFetchEnTimer);
+  const val=document.getElementById('inp_en').value.trim();
+  if(!val) return;
+  autoFetchEnTimer=setTimeout(()=>fetchTurkish(val),1000);
+}
+
+async function fetchTurkish(word){
+  const trEl=document.getElementById('inp_tr');
+  if(!trEl||trEl.value.trim()) return;
+  try{
+    const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=en|tr');
+    const d=await r.json();
+    const t=d?.responseData?.translatedText;
+    if(t&&t.toLowerCase()!==word.toLowerCase()) trEl.value=t;
   }catch(e){}
 }
 
