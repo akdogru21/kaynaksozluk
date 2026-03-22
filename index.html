@@ -356,6 +356,10 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 @media(max-width:800px){}
 @media(max-width:480px){}
 
+
+/* ── TOGGLE ETİKETİ ─────────────────────────── */
+.toggle-lbl{font-family:var(--fm);font-size:0.62rem;letter-spacing:1.5px;padding:2px 8px;border-radius:10px;background:var(--surf2);color:var(--txt-d);border:1px solid var(--brd);cursor:pointer;transition:all .2s;white-space:nowrap;user-select:none}
+.toggle-lbl.on{background:var(--pb);color:var(--acc);border-color:var(--acc)}
 </style>
 </head>
 <body data-theme="krem">
@@ -622,11 +626,11 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   </div>
 
     <div class="tbl-wrap">
-    <div class="tbl-hdr" onclick="toggleTable()">
+    <div class="tbl-hdr" onclick="toggleTable()" style="cursor:pointer">
       <span class="tbl-ttl">Kelime Listesi</span>
-      <div style="display:flex;align-items:center;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
         <span class="res-lbl" id="resLabel"></span>
-        <span id="tblArrow" style="font-size:12px;color:var(--acc-d);transition:transform .3s;display:inline-block;transform:rotate(-90deg)">▼</span>
+        <span id="tblToggleLbl" class="toggle-lbl">KAPALI</span>
       </div>
     </div>
     <div class="tscroll collapsed" id="tblScroll">
@@ -684,7 +688,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
     <!-- ADIM 2: Kelime Havuzu -->
     <div class="cb-section">
-      <div class="tbl-hdr" onclick="togglePool()" style="cursor:pointer"><span class="tbl-ttl">2 · Kelime Havuzu</span><span id="poolArrow" style="font-size:12px;color:var(--acc-d);transition:transform .3s;display:inline-block;margin-left:8px;transform:rotate(-90deg)">▼</span>
+      <div class="tbl-hdr" onclick="togglePool()" style="cursor:pointer"><span class="tbl-ttl">2 · Kelime Havuzu</span><span id="poolToggleLbl" class="toggle-lbl">KAPALI</span>
       </div>
       <div id="poolBody" style="transition:max-height .35s ease,opacity .3s;overflow:hidden;max-height:0;opacity:0">
         <div class="filter-pool">
@@ -1499,9 +1503,9 @@ let tableOpen=false;
 function toggleTable(){
   tableOpen=!tableOpen;
   const sc=document.getElementById('tblScroll');
-  const arrow=document.getElementById('tblArrow');
+  const lbl=document.getElementById('tblToggleLbl');
   if(sc) sc.classList.toggle('collapsed',!tableOpen);
-  if(arrow) arrow.style.transform=tableOpen?'rotate(0deg)':'rotate(-90deg)';
+  if(lbl){lbl.textContent=tableOpen?'AÇIK':'KAPALI';lbl.className='toggle-lbl'+(tableOpen?' on':'');}
 }
 
 function render(){
@@ -1931,9 +1935,9 @@ function toggleNoteSection(cat){
   noteSecOpen[cat]=noteSecOpen[cat]===false?true:false;
   const key=cat.replace(/\s/g,'-');
   const body=document.getElementById('nsbody-'+key);
-  const arrow=document.getElementById('nsarrow-'+key);
+  const lbl=document.getElementById('nsarrow-'+key);
   if(body) body.classList.toggle('collapsed',!noteSecOpen[cat]);
-  if(arrow) arrow.style.transform=noteSecOpen[cat]?'rotate(0deg)':'rotate(-90deg)';
+  if(lbl){lbl.textContent=noteSecOpen[cat]?'AÇIK':'KAPALI';lbl.className='toggle-lbl'+(noteSecOpen[cat]?' on':'');}
 }
 
 function renderNotes(){
@@ -1999,7 +2003,7 @@ function renderNotes(){
       +'<span class="tbl-ttl">'+cat+'</span>'
       +'<span style="font-family:var(--fm);font-size:0.7rem;color:var(--acc-d)">'+items.length+'</span>'
       +'</div>'
-      +'<span id="nsarrow-'+cat.replace(/\s/g,'-')+'" style="font-size:11px;color:var(--acc-d);transition:transform .3s;display:inline-block;transform:'+(isOpen?'rotate(0deg)':'rotate(-90deg)')+'">▼</span>';
+      +'<span id="nsarrow-'+cat.replace(/\s/g,'-')+'" class="toggle-lbl'+(isOpen?' on':'')+'">'+(isOpen?'AÇIK':'KAPALI')+'</span>';
     hdr.onclick=function(){toggleNoteSection(cat);};
     sec.appendChild(hdr);
 
@@ -2362,10 +2366,10 @@ function renderRef(){
 
 function toggleRefSec(id){
   const body=document.getElementById('refbody-'+id);
-  const arrow=document.querySelector('#ref-sec-'+id+' .ref-arrow');
+  const lbl=document.getElementById('ref-toggle-'+id);
   if(!body) return;
   const closed=body.classList.toggle('closed');
-  arrow.style.transform=closed?'rotate(-90deg)':'rotate(0deg)';
+  if(lbl){lbl.textContent=closed?'KAPALI':'AÇIK';lbl.className='toggle-lbl'+(closed?'':' on');}
 }
 
 /* Section CRUD */
@@ -2972,7 +2976,11 @@ function exportPDF(){
   html+='th{background:#333;color:#fff;padding:7px 10px;text-align:left;font-size:10px}';
   html+='td{padding:6px 10px;border-bottom:1px solid #eee}.sy{font-size:14px}';
   html+='tr:nth-child(even) td{background:#fafafa}.pill{display:inline-block;padding:1px 7px;border-radius:10px;background:#e8e8e8;font-size:9px}';
-  html+='</style></head><body>';
+  html+='
+/* ── TOGGLE ETİKETİ ─────────────────────────── */
+.toggle-lbl{font-family:var(--fm);font-size:0.62rem;letter-spacing:1.5px;padding:2px 8px;border-radius:10px;background:var(--surf2);color:var(--txt-d);border:1px solid var(--brd);cursor:pointer;transition:all .2s;white-space:nowrap;user-select:none}
+.toggle-lbl.on{background:var(--pb);color:var(--acc);border-color:var(--acc)}
+</style></head><body>';
   html+='<h1>Suryanice Sozluk</h1><div class="subtitle">Turkce - Suryanice - Ingilizce &nbsp; '+dateStr+'</div>';
   if(incSozluk){
     var filtered=typeFilter==='hepsi'?words:words.filter(function(w){return w.type===typeFilter;});
