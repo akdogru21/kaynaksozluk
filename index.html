@@ -880,6 +880,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
             <option value="zarf">Zarflar</option>
           </select>
         </div>
+        <button class="abtn hl" id="fcModeBtn" onclick="toggleFcMode()"><span>🎯</span>Sınav Modu: Kapalı</button>
         <button class="abtn hl" onclick="initFlashcard()"><span>▶</span>Başla</button>
       </div>
     </div>
@@ -913,10 +914,20 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         </div>
       </div>
 
-      <!-- Butonlar -->
+      <!-- Klasik Butonlar -->
       <div id="fcBtns" style="display:none;justify-content:center;gap:16px;max-width:520px;margin:0 auto">
         <button class="btn" onclick="fcAnswer(false)" style="background:rgba(204,51,51,.1);color:var(--bad);border:2px solid var(--bad);padding:12px 32px;font-size:1rem">✗ Bilmedim</button>
         <button class="btn" onclick="fcAnswer(true)" style="background:rgba(58,154,90,.1);color:#3a9a5a;border:2px solid #3a9a5a;padding:12px 32px;font-size:1rem">✓ Bildim</button>
+      </div>
+
+      <!-- Sınav Seçenekleri -->
+      <div id="fcQuizBtns" style="display:none;max-width:520px;margin:0 auto">
+        <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);text-align:center;margin-bottom:12px">Doğru cevabı seçin</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="fcQuizOptions"></div>
+        <div id="fcQuizFeedback" style="display:none;text-align:center;margin-top:16px;padding:12px;border-radius:8px;font-size:1rem;font-weight:700"></div>
+        <div id="fcQuizNext" style="display:none;text-align:center;margin-top:12px">
+          <button class="abtn hl" onclick="fcNextAfterQuiz()"><span>→</span>Sonraki</button>
+        </div>
       </div>
     </div>
 
@@ -2756,6 +2767,7 @@ function showFcCard(){
   card.style.borderColor='var(--brd)';
   card.style.background='var(--surf)';
   document.getElementById('fcBtns').style.display='none';
+  document.getElementById('fcQuizBtns').style.display='none';
 
   // Type badge
   if(w.type){
@@ -3039,6 +3051,125 @@ function renderGunKelimeCumle(){
 
 /* -- BUNU BILIYOR MUSUN -- */
 
+
+
+/* -- SINAV MODU -- */
+var fcQuizMode = false;
+
+function toggleFcMode(){
+  fcQuizMode = !fcQuizMode;
+  var btn = document.getElementById('fcModeBtn');
+  if(btn){
+    btn.innerHTML = fcQuizMode
+      ? '<span>🎯</span>Sınav Modu: Açık'
+      : '<span>🎯</span>Sınav Modu: Kapalı';
+    btn.style.background = fcQuizMode ? 'var(--acc)' : '';
+    btn.style.color = fcQuizMode ? 'var(--bg)' : '';
+  }
+}
+
+function getFcQuizOptions(correct){
+  // Get 1 wrong option - sometimes from same type, sometimes random
+  var pool = words.filter(function(w){ return w.id !== correct.id; });
+  if(!pool.length) return [correct];
+
+  var sameType = pool.filter(function(w){ return w.type === correct.type; });
+  var wrongPool = (sameType.length > 0 && Math.random() > 0.4) ? sameType : pool;
+  var wrong = wrongPool[Math.floor(Math.random() * wrongPool.length)];
+
+  var opts = [correct, wrong];
+  // Shuffle
+  if(Math.random() > 0.5) opts = [wrong, correct];
+  return opts;
+}
+
+function showFcQuizOptions(){
+  var w = fcWords[fcIndex];
+  var fcFront = document.getElementById('fc-front-tr').classList.contains('active') ? 'tr'
+    : document.getElementById('fc-front-sy').classList.contains('active') ? 'sy' : 'en';
+  // Answer lang is opposite
+  var ansLang = fcFront === 'tr' ? 'sy' : fcFront === 'sy' ? 'tr' : 'tr';
+  // Mix it up for karışık
+  if(Math.random() > 0.5) ansLang = ansLang === 'tr' ? 'sy' : 'tr';
+
+  var opts = getFcQuizOptions(w);
+  var container = document.getElementById('fcQuizOptions');
+  var feedback = document.getElementById('fcQuizFeedback');
+  var nextBtn = document.getElementById('fcQuizNext');
+  if(feedback) { feedback.style.display='none'; }
+  if(nextBtn) { nextBtn.style.display='none'; }
+  if(!container) return;
+
+  container.innerHTML = '';
+  opts.forEach(function(opt){
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:14px 12px;border:2px solid var(--brd);border-radius:10px;background:var(--surf);cursor:pointer;font-size:0.95rem;color:var(--txt);transition:all .2s;text-align:center;line-height:1.4';
+    var txt = opt[ansLang] || opt.tr || opt.sy || '—';
+    // For Syriac show script + translit
+    if(ansLang === 'sy' && opt.sy){
+      var sy = opt.sy;
+      var p = sy.indexOf('(');
+      var sc = p>-1 ? sy.substring(0,p).trim() : sy;
+      var tr2 = p>-1 ? sy.substring(p+1).replace(')','').trim() : '';
+      txt = sc + (tr2 ? '<br><small style="font-family:var(--fm);font-size:0.72rem;color:var(--acc-d)">'+tr2+'</small>' : '');
+    }
+    btn.innerHTML = txt;
+    var isCorrect = opt.id === w.id;
+    btn.onclick = function(){
+      // Disable all buttons
+      container.querySelectorAll('button').forEach(function(b){ b.disabled=true; b.style.cursor='default'; });
+      if(isCorrect){
+        btn.style.cssText += ';border-color:#3a9a5a;background:rgba(58,154,90,.12);color:#3a9a5a';
+        fcCorrectCount++;
+        if(feedback){
+          feedback.style.display='block';
+          feedback.style.background='rgba(58,154,90,.1)';
+          feedback.style.color='#3a9a5a';
+          feedback.style.border='1.5px solid #3a9a5a';
+          feedback.textContent='✓ Doğru!';
+        }
+      } else {
+        btn.style.cssText += ';border-color:var(--bad);background:rgba(204,51,51,.1);color:var(--bad)';
+        // Show correct
+        container.querySelectorAll('button').forEach(function(b){
+          // find correct btn
+          if(b !== btn) b.style.cssText += ';border-color:#3a9a5a;background:rgba(58,154,90,.12);color:#3a9a5a';
+        });
+        fcWrongCount++;
+        if(feedback){
+          feedback.style.display='block';
+          feedback.style.background='rgba(204,51,51,.08)';
+          feedback.style.color='var(--bad)';
+          feedback.style.border='1.5px solid var(--bad)';
+          feedback.textContent='✗ Yanlış!';
+        }
+      }
+      // Update score display
+      var fc = document.getElementById('fcCorrect');
+      var fw = document.getElementById('fcWrong');
+      if(fc) fc.textContent = '✓ ' + fcCorrectCount;
+      if(fw) fw.textContent = '✗ ' + fcWrongCount;
+      if(nextBtn) nextBtn.style.display='block';
+    };
+    container.appendChild(btn);
+  });
+}
+
+function fcNextAfterQuiz(){
+  fcIndex++;
+  if(fcIndex >= fcWords.length){
+    showFcResult();
+    return;
+  }
+  // Update progress
+  var bar = document.getElementById('fcBarFill');
+  if(bar) bar.style.width = (fcIndex/fcWords.length*100)+'%';
+  var prog = document.getElementById('fcProgress');
+  if(prog) prog.textContent = (fcIndex+1)+' / '+fcWords.length;
+  // Show next card
+  showFcCard();
+  showFcQuizOptions();
+}
 
 function renderBiliyorMusun(){
   var el=document.getElementById('biliyormusun-icerik');
