@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 [data-theme="gece"]{--bg:#000000;--surf:#111111;--surf2:#1c1c1c;--surf3:#282828;--acc:#ffffff;--acc-l:#ffffff;--acc-d:#bbbbbb;--txt:#ffffff;--txt-d:#999999;--bad:#ff5555;--brd:rgba(255,255,255,.18);--brd-s:rgba(255,255,255,.08);--pb:rgba(255,255,255,.1);--pc:#ffffff;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
-[data-theme="krem"]{--bg:#f8f6f0;--surf:#fffef8;--surf2:#f0ede4;--surf3:#e4dfd2;--acc:#b8962e;--acc-l:#d4af4a;--acc-d:#1a2744;--txt:#1a2744;--txt-d:#3d5080;--bad:#cc2222;--brd:rgba(26,39,68,.18);--brd-s:rgba(26,39,68,.08);--pb:rgba(184,150,46,.1);--pc:#b8962e;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="krem"]{--bg:#f0f4f8;--surf:#ffffff;--surf2:#e8edf5;--surf3:#dce6f0;--acc:#c9a84c;--acc-l:#e2c068;--acc-d:#1a3a6b;--txt:#1a2640;--txt-d:#4a5a78;--bad:#c0392b;--brd:rgba(26,58,107,.18);--brd-s:rgba(26,58,107,.09);--pb:rgba(201,168,76,.12);--pc:#c9a84c;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 [data-theme="bahar"]{--bg:#fffef9;--surf:#ffffff;--surf2:#f5efe4;--surf3:#ece3d4;--acc:#3a2010;--acc-l:#1e0e04;--acc-d:#7a5a40;--txt:#1e0e04;--txt-d:#6a5040;--bad:#aa2222;--brd:rgba(58,32,16,.22);--brd-s:rgba(58,32,16,.1);--pb:rgba(58,32,16,.07);--pc:#1e0e04;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:1rem;font-weight:500;line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .35s,color .35s}
@@ -533,6 +533,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <button class="abtn hl edit-only" onclick="toggleAdd()" style="display:none"><span>＋</span>Kelime Ekle</button>
     <button class="abtn" onclick="exportExcel()"><span>⬇</span>Excel İndir</button>
     <button class="fav-filter-btn" id="favFilterBtn" onclick="toggleFavFilter()">⭐ Favoriler</button>
+    <button class="fav-filter-btn" id="eksikFilterBtn" onclick="toggleEksikFilter()">⚠ Eksik</button>
     <button class="abtn" onclick="showPdfModal()"><span>📄</span>PDF İndir</button>
     <button class="abtn edit-only" onclick="document.getElementById('imp').click()" style="display:none"><span>⬆</span>Excel Yükle</button>
     <input type="file" id="imp" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)">
@@ -1504,6 +1505,16 @@ function toggleTable(){
   if(arrow) arrow.style.transform=tableOpen?'rotate(0deg)':'rotate(-90deg)';
 }
 
+
+/* ── EKSİK FİLTRE ───────────────────────────── */
+var showOnlyEksik=false;
+function toggleEksikFilter(){
+  showOnlyEksik=!showOnlyEksik;
+  const btn=document.getElementById('eksikFilterBtn');
+  if(btn){btn.classList.toggle('on',showOnlyEksik);btn.textContent=showOnlyEksik?'⚠ Eksik ✕':'⚠ Eksik';}
+  render();
+}
+
 function render(){
   const f=getFiltered();
   document.getElementById('totalCount').textContent=words.length;
@@ -1520,8 +1531,9 @@ function render(){
   tbody.innerHTML=f.map(function(w,i){
     const sy=w.sy||'';
     const isFav=favWords.has(w.id);
-    return '<tr>'
-      +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+'</td>'
+    const isEksik=!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
+    return '<tr'+(isEksik?' style="background:rgba(184,150,46,.12);border-left:3px solid #b8962e"':'')+'>'
+      +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+(isEksik?' <span title="Eksik çeviri" style="color:#b8962e">⚠</span>':'')+' </td>'
       +'<td><strong>'+(hl(w.tr,q)||'—')+'</strong></td>'
       +'<td class="tsy">'+(hl(w.sy,q)||'—')+'</td>'
       +'<td class="ten">'+(hl(w.en,q)||'—')+'</td>'
