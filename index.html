@@ -356,6 +356,58 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 @media(max-width:800px){}
 @media(max-width:480px){}
 
+
+/* ── MOBİL DÜZENLEMELER ─────────────────────── */
+@media(max-width:480px){
+  /* Referans tablosu - İngilizce sütunu gizleme yerine scroll */
+  .ref-table{font-size:0.78rem}
+  .ref-table th,.ref-table td{padding:6px 8px}
+  .ref-table td.sy{font-size:0.9rem}
+  
+  /* Tablo yatay scroll */
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  
+  /* App genişlik */
+  .app{padding:0 10px 64px}
+  
+  /* Header */
+  .save-ind{font-size:0.65rem}
+  
+  /* Tabs */
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;gap:0}
+  .tab{white-space:nowrap;padding:12px 10px;font-size:0.72rem;min-width:auto}
+  
+  /* Stat kartları */
+  .stats-row{grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat-num{font-size:1.4rem}
+  
+  /* Actions */
+  .actions-row{flex-wrap:wrap;gap:6px}
+  .abtn{font-size:0.7rem;padding:6px 10px}
+  
+  /* Referans - 3 sütun göster, İngilizce de görünsün */
+  .ref-table th:nth-child(4),.ref-table td:nth-child(4){
+    display:table-cell!important;
+    font-size:0.72rem;
+    color:var(--txt-d);
+  }
+
+  /* Not kartları */
+  .note-card{padding:12px}
+  .note-card-body{font-size:0.82rem}
+
+  /* Flashcard */
+  #fcCard{min-height:180px;padding:20px}
+  #fcFrontText{font-size:1.4rem}
+  
+  /* Ana sayfa grid */
+  .home-card{padding:16px 14px}
+  
+  /* Günün kelimeleri */
+  #gun-grid{grid-template-columns:1fr 1fr!important}
+  #gun-sayi{border-right:none!important}
+}
+
 </style>
 </head>
 <body data-theme="krem">
@@ -2324,6 +2376,8 @@ function renderRef(){
     body.className='ref-body closed';
     body.id='refbody-'+sec.id;
 
+    const tableWrap=document.createElement('div');
+    tableWrap.style.cssText='overflow-x:auto;-webkit-overflow-scrolling:touch';
     const table=document.createElement('table');
     table.className='ref-table';
     table.innerHTML='<thead><tr><th>Türkçe</th><th>Süryanice</th><th>Transliterasyon</th><th>İngilizce</th>'+(editMode?'<th style="width:60px"></th>':'')+'</tr></thead>';
@@ -2354,7 +2408,8 @@ function renderRef(){
       tbody.appendChild(addRow);
     }
     table.appendChild(tbody);
-    body.appendChild(table);
+    tableWrap.appendChild(table);
+    body.appendChild(tableWrap);
     div.appendChild(body);
     container.appendChild(div);
   });
@@ -2972,7 +3027,59 @@ function exportPDF(){
   html+='th{background:#333;color:#fff;padding:7px 10px;text-align:left;font-size:10px}';
   html+='td{padding:6px 10px;border-bottom:1px solid #eee}.sy{font-size:14px}';
   html+='tr:nth-child(even) td{background:#fafafa}.pill{display:inline-block;padding:1px 7px;border-radius:10px;background:#e8e8e8;font-size:9px}';
-  html+='</style></head><body>';
+  html+='
+/* ── MOBİL DÜZENLEMELER ─────────────────────── */
+@media(max-width:480px){
+  /* Referans tablosu - İngilizce sütunu gizleme yerine scroll */
+  .ref-table{font-size:0.78rem}
+  .ref-table th,.ref-table td{padding:6px 8px}
+  .ref-table td.sy{font-size:0.9rem}
+  
+  /* Tablo yatay scroll */
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  
+  /* App genişlik */
+  .app{padding:0 10px 64px}
+  
+  /* Header */
+  .save-ind{font-size:0.65rem}
+  
+  /* Tabs */
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;gap:0}
+  .tab{white-space:nowrap;padding:12px 10px;font-size:0.72rem;min-width:auto}
+  
+  /* Stat kartları */
+  .stats-row{grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat-num{font-size:1.4rem}
+  
+  /* Actions */
+  .actions-row{flex-wrap:wrap;gap:6px}
+  .abtn{font-size:0.7rem;padding:6px 10px}
+  
+  /* Referans - 3 sütun göster, İngilizce de görünsün */
+  .ref-table th:nth-child(4),.ref-table td:nth-child(4){
+    display:table-cell!important;
+    font-size:0.72rem;
+    color:var(--txt-d);
+  }
+
+  /* Not kartları */
+  .note-card{padding:12px}
+  .note-card-body{font-size:0.82rem}
+
+  /* Flashcard */
+  #fcCard{min-height:180px;padding:20px}
+  #fcFrontText{font-size:1.4rem}
+  
+  /* Ana sayfa grid */
+  .home-card{padding:16px 14px}
+  
+  /* Günün kelimeleri */
+  #gun-grid{grid-template-columns:1fr 1fr!important}
+  #gun-sayi{border-right:none!important}
+}
+
+</style></head><body>';
   html+='<h1>Suryanice Sozluk</h1><div class="subtitle">Turkce - Suryanice - Ingilizce &nbsp; '+dateStr+'</div>';
   if(incSozluk){
     var filtered=typeFilter==='hepsi'?words:words.filter(function(w){return w.type===typeFilter;});
