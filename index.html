@@ -1126,6 +1126,28 @@ function requireAuth(){
   }
   return true;
 }
+/* ── SÜRYANİCE TRANSLİTERASYON ──────────────────────────────── */
+function syriacToLatin(syriac){
+  const map = {
+    'ܒ':'b','ܓ':'g','ܕ':'d','ܗ':'h','ܘ':'w','ܙ':'z','ܚ':'ḥ','ܛ':'ṭ',
+    'ܝ':'y','ܟ':'k','ܠ':'l','ܡ':'m','ܢ':'n','ܣ':'s','ܥ':'ʿ','ܦ':'p',
+    'ܨ':'ṣ','ܩ':'q','ܪ':'r','ܫ':'š','ܬ':'t'
+  };
+  const chars = Array.from(syriac.replace(/[\u0700-\u070F\u0730-\u074A]/g,''));
+  let result = '';
+  for(let i=0; i<chars.length; i++){
+    const ch = chars[i];
+    if(ch === 'ܐ'){
+      if(i === 0) result += '\u02BE';
+      else if(i === chars.length-1) result += 'o';
+      else result += '\u02BE';
+    } else {
+      result += map[ch] !== undefined ? map[ch] : ch;
+    }
+  }
+  return result.charAt(0).toUpperCase() + result.slice(1);
+}
+
 function getClaudeKey(){return localStorage.getItem('claude_api_key')||'';}
 
 async function askClaude(word){
@@ -2351,9 +2373,10 @@ async function fetchSyriac(){
     const data=await askClaude(word);
     // Fill Syriac field (script only, no transliteration)
     const syScript=(data.sy||'').split('(')[0].trim();
-    const syTranslit=(data.sy||'').match(/\(([^)]+)\)/)?.[1]||'';
     if(syScript) document.getElementById('inp_sy').value=syScript;
-    if(syTranslit&&!document.getElementById('inp_tr2').value) document.getElementById('inp_tr2').value=syTranslit;
+    // Transliterasyonu otomatik fonksiyondan üret
+    const autoTranslit = syScript ? syriacToLatin(syScript) : '';
+    if(autoTranslit) document.getElementById('inp_tr2').value=autoTranslit;
     if(data.en&&!document.getElementById('inp_en').value) document.getElementById('inp_en').value=data.en;
     if(data.type) document.getElementById('inp_type').value=data.type;
     showToast('✦ Süryanice getirildi, SEDRA doğrulanıyor...');
