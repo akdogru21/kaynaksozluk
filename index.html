@@ -1156,7 +1156,7 @@ async function sbFetch(path,method='GET',body=null){
   return txt?JSON.parse(txt):[];
 }
 async function sbGetWords(){return sbFetch('/rest/v1/words?select=*&order=id.asc');}
-async function sbAddWord(w){return sbFetch('/rest/v1/words','POST',{tr:w.tr,sy:w.sy,en:w.en,type:w.type,date:w.date});}
+async function sbAddWord(w){return sbFetch('/rest/v1/words','POST',{id:w.id,tr:w.tr,sy:w.sy,en:w.en,type:w.type,date:w.date});}
 async function sbUpdateWord(id,w){return sbFetch('/rest/v1/words?id=eq.'+id,'PATCH',{tr:w.tr,sy:w.sy,en:w.en,type:w.type});}
 async function sbDeleteWord(id){return sbFetch('/rest/v1/words?id=eq.'+id,'DELETE');}
 async function sbGetNotes(){return sbFetch('/rest/v1/notes?select=*&order=id.asc');}
