@@ -2285,8 +2285,8 @@ function scheduleAutoFetch(){
   const val=document.getElementById('inp_tr').value.trim();
   if(!val){return;}
   autoFetchTimer=setTimeout(()=>{
+    fetchEnglish(val);
     if(getClaudeKey()||getGeminiKey()){fetchSyriac();}
-    else{fetchEnglish(val);}
   },1000);
 }
 
