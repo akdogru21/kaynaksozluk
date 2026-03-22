@@ -1168,16 +1168,16 @@ async function initCloud(){
   try{
     const ws=await sbGetWords();
     if(ws&&Array.isArray(ws)){
-      // Sync: if cloud empty and we have local words, push to cloud
-      if(ws.length===0&&words.length>0){
+      // Sync: if cloud empty OR cloud has fewer words than local, push local to cloud
+      if(ws.length===0||(ws.length>0&&ws.length<words.length)){
         showToast('☁ Kelimeler buluta yükleniyor...');
         for(const w of words){
           const res=await sbAddWord(w);
           if(res&&res[0]) w.sbId=res[0].id;
         }
         save();
-      } else if(ws.length>0){
-        // Load from cloud
+      } else if(ws.length>=words.length){
+        // Load from cloud only if cloud has more or equal words
         words=ws.map(w=>({id:w.id,sbId:w.id,tr:w.tr||'',sy:w.sy||'',en:w.en||'',type:w.type||'',date:w.date||today}));
         nextId=Math.max(...words.map(w=>w.id))+1;
         save();
