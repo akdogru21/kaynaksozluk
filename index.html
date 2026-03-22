@@ -2775,6 +2775,17 @@ function showFcCard(){
     document.getElementById('fcFrontLabel').innerHTML=langLabels[fcFront]
       +' <span style="margin-left:8px;padding:2px 8px;border-radius:20px;background:'+color+'22;color:'+color+';font-size:0.7rem">'+w.type+'</span>';
   }
+
+  // Sınav modu
+  if(fcQuizMode){
+    document.getElementById('fcCard').style.cursor='default';
+    document.getElementById('fcHint').style.display='none';
+    document.getElementById('fcQuizBtns').style.display='block';
+    showFcQuizOptions();
+  } else {
+    document.getElementById('fcCard').style.cursor='pointer';
+    document.getElementById('fcQuizBtns').style.display='none';
+  }
 }
 
 function getFcText(w,lang){
