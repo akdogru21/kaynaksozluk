@@ -591,6 +591,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       </div>
       <div class="brow">
         <button class="btn btn-p" onclick="addWord()">Ekle</button>
+        <button class="btn btn-s" onclick="clearAddForm()">⊘ Temizle</button>
         <button class="btn btn-s" onclick="toggleAdd()">İptal</button>
       </div>
     </div>
@@ -1411,6 +1412,13 @@ function setTheme(t,el){
   const mini=document.getElementById('mt-'+curTheme);
   if(mini) mini.classList.add('active');
 })();
+function clearAddForm(){
+  ['inp_tr','inp_sy','inp_tr2','inp_en'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  const t=document.getElementById('inp_type');if(t)t.value='';
+  const sd=document.getElementById('sedra-status');if(sd)sd.remove();
+  document.getElementById('inp_tr').focus();
+  showToast('⊘ Form temizlendi');
+}
 function toggleAdd(){const w=document.getElementById('addWrap');w.classList.toggle('open');if(w.classList.contains('open'))document.getElementById('inp_tr').focus();}
 function insChar(ch){
   const el=document.getElementById('inp_tr2');
