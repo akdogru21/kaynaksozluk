@@ -617,7 +617,6 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       <button class="fbtn" onclick="setFilter('sy',this)">Süryanice</button>
       <button class="fbtn" onclick="setFilter('en',this)">İngilizce</button>
       <button class="fbtn" onclick="setFilter('type',this)">Türe Göre</button>
-      <button class="fbtn" id="eksikTamamlaBtn" onclick="eksikTamamla(this)" style="border-color:#b8962e;color:#b8962e">⚠ Eksik Tamamla</button>
       <button class="fbtn" id="aiSearchBtn" onclick="aiSearch()" style="display:none;border-color:var(--acc);color:var(--acc)">✨ Yapay Zeka ile Ara</button>
     </div>
   </div>
@@ -1165,7 +1164,7 @@ async function sbUpdateNote(id,n){return sbFetch('/rest/v1/notes?id=eq.'+id,'PAT
 async function sbDeleteNote(id){return sbFetch('/rest/v1/notes?id=eq.'+id,'DELETE');}
 
 let useCloud=false;
-async async function initCloud(){
+async function initCloud(){
   try{
     const ws=await sbGetWords();
     if(ws&&Array.isArray(ws)){
@@ -1462,8 +1461,6 @@ function sortT(key){
 }
 function getFiltered(){
   let list=[...words];
-  if(showOnlyFavs) list=list.filter(w=>favWords.has(w.id));
-  if(showOnlyEksik) list=list.filter(w=>!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='');
   if(q){const ql=q.toLowerCase();list=list.filter(w=>{
     if(filterLang==='tr')return(w.tr||'').toLowerCase().includes(ql);
     if(filterLang==='sy')return(w.sy||'').toLowerCase().includes(ql);
@@ -1507,38 +1504,6 @@ function toggleTable(){
   if(arrow) arrow.style.transform=tableOpen?'rotate(0deg)':'rotate(-90deg)';
 }
 
-
-/* ── EKSİK TAMAMLA ──────────────────────────── */
-var eksikMod = false;
-var showOnlyEksik = false;
-function eksikTamamla(el){
-  eksikMod = !eksikMod;
-  if(eksikMod){
-    el.style.background = 'rgba(184,150,46,.15)';
-    el.style.fontWeight = '700';
-    // Filter: show only words with missing fields
-    var eksikler = words.filter(function(w){
-      return !w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
-    });
-    if(eksikler.length === 0){
-      showToast('✓ Tüm kelimelerin çevirisi tam!');
-      eksikMod = false;
-      el.style.background = '';
-      el.style.fontWeight = '';
-      return;
-    }
-    showToast('⚠ ' + eksikler.length + ' eksik kelime bulundu');
-    // Highlight rows — trigger render with eksik filter
-    showOnlyEksik = true;
-    render();
-  } else {
-    el.style.background = '';
-    el.style.fontWeight = '';
-    showOnlyEksik = false;
-    render();
-  }
-}
-
 function render(){
   const f=getFiltered();
   document.getElementById('totalCount').textContent=words.length;
@@ -1555,8 +1520,7 @@ function render(){
   tbody.innerHTML=f.map(function(w,i){
     const sy=w.sy||'';
     const isFav=favWords.has(w.id);
-    const isEksik=!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
-    return '<tr'+(isEksik?' style="background:rgba(184,150,46,.1);border-left:3px solid #b8962e"':'')+'>'
+    return '<tr>'
       +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+'</td>'
       +'<td><strong>'+(hl(w.tr,q)||'—')+'</strong></td>'
       +'<td class="tsy">'+(hl(w.sy,q)||'—')+'</td>'
