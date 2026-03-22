@@ -1418,7 +1418,7 @@ function changeFont(dir){
 }
 function deleteWord(id){if(!requireAuth())return;
   const w=words.find(x=>x.id===id);
-  if(w&&useCloud&&w.sbId) sbDeleteWord(w.sbId).catch(e=>console.error(e));
+  if(w&&useCloud) sbDeleteWord(w.sbId||w.id).catch(e=>console.error(e));
   words=words.filter(x=>x.id!==id);save();render();showToast('Kelime silindi');
 }
 function clearAll(){if(!confirm('Tüm kelimeler silinecek. Emin misiniz?'))return;words=[];nextId=1;save();render();showToast('Tümü silindi');}
@@ -1877,7 +1877,7 @@ function saveEdit(){if(!requireAuth())return;
   w.sy=syRaw&&tr2?`${syRaw} (${tr2})`:syRaw||tr2;
   w.en=document.getElementById('edit_en').value.trim();
   w.type=document.getElementById('edit_type').value;
-  if(useCloud&&w.sbId) sbUpdateWord(w.sbId,w).catch(e=>console.error(e));
+  if(useCloud) sbUpdateWord(w.sbId||w.id,w).catch(e=>console.error(e));
   save();render();closeEdit();showToast('✦ Kelime güncellendi');
 }
 function insCharEdit(ch){
