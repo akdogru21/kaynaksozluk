@@ -1044,22 +1044,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   <div style="background:var(--surf);border:1.5px solid var(--acc);border-radius:12px;padding:28px;width:min(460px,90vw)">
     <div style="font-family:var(--fh);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:6px">API Key</div>
     <p style="font-size:13px;color:var(--txt-d);margin-bottom:16px;line-height:1.6">Süryanice getirmek için API key gerekli. Key <strong>yalnızca bu cihazda</strong> saklanır.</p>
-    <div class="igroup" style="margin-bottom:12px">
-      <label class="ilabel">OpenAI Key (Önerilen)</label>
-      <div style="display:flex;gap:6px">
-        <input type="password" class="winput" id="openaiKeyInput" placeholder="sk-proj-..." style="flex:1">
-        <button type="button" class="abtn" onclick="deleteKey('openai_api_key','openaiKeyInput')" title="Sil" style="padding:8px 10px;flex-shrink:0">🗑</button>
-      </div>
-    </div>
-    <div class="igroup" style="margin-bottom:12px">
-      <label class="ilabel">Google Gemini Key</label>
-      <div style="display:flex;gap:6px">
-        <input type="password" class="winput" id="geminiKeyInput" placeholder="AIza..." style="flex:1">
-        <button type="button" class="abtn" onclick="deleteKey('gemini_api_key','geminiKeyInput')" title="Sil" style="padding:8px 10px;flex-shrink:0">🗑</button>
-      </div>
-    </div>
     <div class="igroup" style="margin-bottom:16px">
-      <label class="ilabel">Claude Key (Anthropic)</label>
+      <label class="ilabel">Claude API Key (Anthropic)</label>
       <div style="display:flex;gap:6px">
         <input type="password" class="winput" id="apiKeyInput" placeholder="sk-ant-..." style="flex:1">
         <button type="button" class="abtn" onclick="deleteKey('claude_api_key','apiKeyInput')" title="Sil" style="padding:8px 10px;flex-shrink:0">🗑</button>
@@ -1068,7 +1054,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="btn btn-p" onclick="saveApiKey()">Kaydet</button>
       <button class="btn btn-s" onclick="closeApiKeyModal()">İptal</button>
-      <a href="https://platform.openai.com/api-keys" target="_blank" style="font-family:var(--fm);font-size:9px;color:var(--acc-d);letter-spacing:1px;margin-left:auto">OpenAI key al →</a>
+      <a href="https://console.anthropic.com/settings/keys" target="_blank" style="font-family:var(--fm);font-size:9px;color:var(--acc-d);letter-spacing:1px;margin-left:auto">Key al →</a>
     </div>
   </div>
 </div>
@@ -1141,8 +1127,7 @@ function requireAuth(){
   return true;
 }
 function getClaudeKey(){return localStorage.getItem('claude_api_key')||'';}
-function getGeminiKey(){return localStorage.getItem('gemini_api_key')||'';}
-function getOpenAIKey(){return localStorage.getItem('openai_api_key')||'';}
+
 async function askClaude(word){
   const CLAUDE_KEY=getClaudeKey();
   if(!CLAUDE_KEY){showApiKeyModal();throw new Error('API key girilmedi');}
@@ -1166,50 +1151,6 @@ async function askClaude(word){
   catch(e){throw new Error('JSON parse hatası: '+text.slice(0,100));}
 }
 
-
-async function askOpenAI(word){
-  const KEY=getOpenAIKey();
-  if(!KEY) throw new Error('OpenAI key yok');
-  const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
-  const r=await fetch('https://api.openai.com/v1/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY},
-    body:JSON.stringify({model:'gpt-4o-mini',max_tokens:200,messages:[{role:'user',content:prompt}]})
-  });
-  const d=await r.json();
-  if(!r.ok) throw new Error(d?.error?.message||'OpenAI hatası');
-  const text=(d?.choices?.[0]?.message?.content||'').trim().replace(/```json|```/g,'').trim();
-  try{return JSON.parse(text);}catch(e){throw new Error('JSON hatası');}
-}
-
-async function askGemini(word){
-  const KEY=getGeminiKey();
-  if(!KEY) throw new Error('Gemini key yok');
-  const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+KEY,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-  });
-  const d=await r.json();
-  if(!r.ok) throw new Error(d?.error?.message||'Gemini hatası');
-  const text=(d?.candidates?.[0]?.content?.parts?.[0]?.text||'').trim().replace(/```json|```/g,'').trim();
-  try{return JSON.parse(text);}catch(e){throw new Error('JSON hatası');}
-}
-
-async function askOpenAI(word){
-  const KEY=getClaudeKey();
-  if(!KEY) throw new Error('OpenAI key yok');
-  const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver, başka hiçbir şey yazma: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
-  const r=await fetch('https://api.openai.com/v1/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY},
-    body:JSON.stringify({model:'gpt-4o-mini',max_tokens:300,messages:[{role:'user',content:prompt}]})
-  });
-  const d=await r.json();
-  if(!r.ok) throw new Error(d?.error?.message||'OpenAI hatası');
-  const text=(d?.choices?.[0]?.message?.content||'').trim().replace(/```json|```/g,'').trim();
-  try{return JSON.parse(text);}catch(e){throw new Error('JSON hatası: '+text.slice(0,80));}
-}
 
 /* ── SUPABASE ─────────────────────────────── */
 const SB_URL='https://kluwiefnxbkiswpusmdn.supabase.co';
@@ -2309,9 +2250,7 @@ function showApiKeyModal(){
   const modal=document.getElementById('apiKeyModal');
   modal.style.display='flex';
   const ec=getClaudeKey(); if(ec) document.getElementById('apiKeyInput').value=ec;
-  const eg=getGeminiKey(); if(eg) document.getElementById('geminiKeyInput').value=eg;
-  const eo=getOpenAIKey(); if(eo) document.getElementById('openaiKeyInput').value=eo;
-  setTimeout(()=>document.getElementById('openaiKeyInput').focus(),100);
+  setTimeout(()=>document.getElementById('apiKeyInput').focus(),100);
 }
 function closeApiKeyModal(){
   document.getElementById('apiKeyModal').style.display='none';
@@ -2333,12 +2272,8 @@ function deleteKey(storageKey, inputId){
 
 function saveApiKey(){
   const claudeKey=document.getElementById('apiKeyInput').value.trim();
-  const geminiKey=document.getElementById('geminiKeyInput').value.trim();
-  const openaiKey=document.getElementById('openaiKeyInput').value.trim();
-  if(!claudeKey&&!geminiKey&&!openaiKey){showToast('⚠ En az bir key girin');return;}
-  if(claudeKey) localStorage.setItem('claude_api_key',claudeKey);
-  if(geminiKey) localStorage.setItem('gemini_api_key',geminiKey);
-  if(openaiKey) localStorage.setItem('openai_api_key',openaiKey);
+  if(!claudeKey){showToast('⚠ API Key boş olamaz');return;}
+  localStorage.setItem('claude_api_key',claudeKey);
   closeApiKeyModal();
   showToast('✦ API Key kaydedildi');
 }
@@ -2351,7 +2286,7 @@ function scheduleAutoFetch(){
   if(!val){return;}
   autoFetchTimer=setTimeout(()=>{
     fetchEnglish(val);
-    if(getClaudeKey()||getGeminiKey()||getOpenAIKey()) fetchSyriac();
+    if(getClaudeKey()) fetchSyriac();
   },1000);
 }
 
@@ -2387,19 +2322,13 @@ async function fetchTurkish(word){
 
 async function fetchSyriac(){
   const claudeKey=getClaudeKey();
-  const geminiKey=getGeminiKey();
-  const openaiKey=getOpenAIKey();
-  if(!claudeKey&&!geminiKey&&!openaiKey){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
+  if(!claudeKey){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
   const word=document.getElementById('inp_tr').value.trim()||document.getElementById('inp_en').value.trim();
   if(!word){showToast('⚠ Önce Türkçe veya İngilizce yazın');return;}
   const btn=document.getElementById('fetchSyBtn');
   btn.textContent='⏳';btn.disabled=true;
   try{
-    let data;
-    if(openaiKey){try{data=await askOpenAI(word);}catch(e){console.warn('OpenAI hata:',e.message);}}
-    if(!data&&geminiKey){try{data=await askGemini(word);}catch(e){console.warn('Gemini hata:',e.message);}}
-    if(!data&&claudeKey){try{data=await askClaude(word);}catch(e){console.warn('Claude hata:',e.message);}}
-    if(!data) throw new Error('API ile bağlanılamadı');
+    const data=await askClaude(word);
     // Fill Syriac field (script only, no transliteration)
     const syScript=(data.sy||'').split('(')[0].trim();
     const syTranslit=(data.sy||'').match(/\(([^)]+)\)/)?.[1]||'';
