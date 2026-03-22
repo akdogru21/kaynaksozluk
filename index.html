@@ -504,6 +504,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <div class="home-stat"><div class="home-stat-num" id="hs-week">—</div><div class="home-stat-lbl">Bu Hafta</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-types">—</div><div class="home-stat-lbl">Kelime Türü</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-favs">—</div><div class="home-stat-lbl">Favori</div></div>
+        <div class="home-stat"><div class="home-stat-num" id="hs-last" style="font-size:0.75em;letter-spacing:0.3px;line-height:1.2;">—</div><div class="home-stat-lbl">Son Eklenen</div></div>
 
       </div>
     </div>
@@ -3282,6 +3283,8 @@ function renderHomeStats(){
   set('hs-week', words.filter(w=>w.date>=thisWeek).length);
   set('hs-types', types);
   set('hs-favs', favWords.size);
+  const sortedW = words.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  set('hs-last', sortedW[0]?.turkish || '—');
 
 }
 
