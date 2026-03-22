@@ -2976,11 +2976,7 @@ function exportPDF(){
   html+='th{background:#333;color:#fff;padding:7px 10px;text-align:left;font-size:10px}';
   html+='td{padding:6px 10px;border-bottom:1px solid #eee}.sy{font-size:14px}';
   html+='tr:nth-child(even) td{background:#fafafa}.pill{display:inline-block;padding:1px 7px;border-radius:10px;background:#e8e8e8;font-size:9px}';
-  html+='
-/* ── TOGGLE ETİKETİ ─────────────────────────── */
-.toggle-lbl{font-family:var(--fm);font-size:0.62rem;letter-spacing:1.5px;padding:2px 8px;border-radius:10px;background:var(--surf2);color:var(--txt-d);border:1px solid var(--brd);cursor:pointer;transition:all .2s;white-space:nowrap;user-select:none}
-.toggle-lbl.on{background:var(--pb);color:var(--acc);border-color:var(--acc)}
-</style></head><body>';
+  html+='</style></head><body>';
   html+='<h1>Suryanice Sozluk</h1><div class="subtitle">Turkce - Suryanice - Ingilizce &nbsp; '+dateStr+'</div>';
   if(incSozluk){
     var filtered=typeFilter==='hepsi'?words:words.filter(function(w){return w.type===typeFilter;});
