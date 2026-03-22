@@ -356,10 +356,6 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 @media(max-width:800px){}
 @media(max-width:480px){}
 
-
-/* ── TOGGLE ETİKETİ ─────────────────────────── */
-.toggle-lbl{font-family:var(--fm);font-size:0.62rem;letter-spacing:1.5px;padding:2px 8px;border-radius:10px;background:var(--surf2);color:var(--txt-d);border:1px solid var(--brd);cursor:pointer;transition:all .2s;white-space:nowrap;user-select:none}
-.toggle-lbl.on{background:var(--pb);color:var(--acc);border-color:var(--acc)}
 </style>
 </head>
 <body data-theme="krem">
@@ -626,11 +622,11 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   </div>
 
     <div class="tbl-wrap">
-    <div class="tbl-hdr" onclick="toggleTable()" style="cursor:pointer">
+    <div class="tbl-hdr" onclick="toggleTable()">
       <span class="tbl-ttl">Kelime Listesi</span>
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px">
         <span class="res-lbl" id="resLabel"></span>
-        <span id="tblToggleLbl" class="toggle-lbl">KAPALI</span>
+        <span id="tblArrow" style="font-size:12px;color:var(--acc-d);transition:transform .3s;display:inline-block;transform:rotate(-90deg)">▼</span>
       </div>
     </div>
     <div class="tscroll collapsed" id="tblScroll">
@@ -688,7 +684,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
     <!-- ADIM 2: Kelime Havuzu -->
     <div class="cb-section">
-      <div class="tbl-hdr" onclick="togglePool()" style="cursor:pointer"><span class="tbl-ttl">2 · Kelime Havuzu</span><span id="poolToggleLbl" class="toggle-lbl">KAPALI</span>
+      <div class="tbl-hdr" onclick="togglePool()" style="cursor:pointer"><span class="tbl-ttl">2 · Kelime Havuzu</span><span id="poolArrow" style="font-size:12px;color:var(--acc-d);transition:transform .3s;display:inline-block;margin-left:8px;transform:rotate(-90deg)">▼</span>
       </div>
       <div id="poolBody" style="transition:max-height .35s ease,opacity .3s;overflow:hidden;max-height:0;opacity:0">
         <div class="filter-pool">
@@ -1503,9 +1499,9 @@ let tableOpen=false;
 function toggleTable(){
   tableOpen=!tableOpen;
   const sc=document.getElementById('tblScroll');
-  const lbl=document.getElementById('tblToggleLbl');
+  const arrow=document.getElementById('tblArrow');
   if(sc) sc.classList.toggle('collapsed',!tableOpen);
-  if(lbl){lbl.textContent=tableOpen?'AÇIK':'KAPALI';lbl.className='toggle-lbl'+(tableOpen?' on':'');}
+  if(arrow) arrow.style.transform=tableOpen?'rotate(0deg)':'rotate(-90deg)';
 }
 
 function render(){
@@ -1935,9 +1931,9 @@ function toggleNoteSection(cat){
   noteSecOpen[cat]=noteSecOpen[cat]===false?true:false;
   const key=cat.replace(/\s/g,'-');
   const body=document.getElementById('nsbody-'+key);
-  const lbl=document.getElementById('nsarrow-'+key);
+  const arrow=document.getElementById('nsarrow-'+key);
   if(body) body.classList.toggle('collapsed',!noteSecOpen[cat]);
-  if(lbl){lbl.textContent=noteSecOpen[cat]?'AÇIK':'KAPALI';lbl.className='toggle-lbl'+(noteSecOpen[cat]?' on':'');}
+  if(arrow) arrow.style.transform=noteSecOpen[cat]?'rotate(0deg)':'rotate(-90deg)';
 }
 
 function renderNotes(){
@@ -2003,7 +1999,7 @@ function renderNotes(){
       +'<span class="tbl-ttl">'+cat+'</span>'
       +'<span style="font-family:var(--fm);font-size:0.7rem;color:var(--acc-d)">'+items.length+'</span>'
       +'</div>'
-      +'<span id="nsarrow-'+cat.replace(/\s/g,'-')+'" class="toggle-lbl'+(isOpen?' on':'')+'">'+(isOpen?'AÇIK':'KAPALI')+'</span>';
+      +'<span id="nsarrow-'+cat.replace(/\s/g,'-')+'" style="font-size:11px;color:var(--acc-d);transition:transform .3s;display:inline-block;transform:'+(isOpen?'rotate(0deg)':'rotate(-90deg)')+'">▼</span>';
     hdr.onclick=function(){toggleNoteSection(cat);};
     sec.appendChild(hdr);
 
@@ -2366,10 +2362,10 @@ function renderRef(){
 
 function toggleRefSec(id){
   const body=document.getElementById('refbody-'+id);
-  const lbl=document.getElementById('ref-toggle-'+id);
+  const arrow=document.querySelector('#ref-sec-'+id+' .ref-arrow');
   if(!body) return;
   const closed=body.classList.toggle('closed');
-  if(lbl){lbl.textContent=closed?'KAPALI':'AÇIK';lbl.className='toggle-lbl'+(closed?'':' on');}
+  arrow.style.transform=closed?'rotate(-90deg)':'rotate(0deg)';
 }
 
 /* Section CRUD */
