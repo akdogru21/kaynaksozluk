@@ -356,9 +356,6 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 @media(max-width:800px){}
 @media(max-width:480px){}
 
-
-.ref-onoff{transition:all .2s}
-.ref-onoff:hover{opacity:.8}
 </style>
 </head>
 <body data-theme="krem">
@@ -2312,14 +2309,11 @@ function renderRef(){
     const editBtns=editMode
       ?'<button class="nebtn" title="Düzenle">✏️</button><button class="ndbtn" title="Sil">✕</button>'
       :'';
-    hdr.innerHTML=
-      '<div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="toggleRefSec('+sec.id+')">'
-      +'<span class="ref-title">'+sec.title+'</span>'
-      +'</div>'
-      +'<div style="display:flex;align-items:center;gap:10px">'
-      +'<span id="ref-toggle-'+sec.id+'" class="ref-onoff" style="font-family:var(--fm);font-size:0.65rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;background:var(--surf2);color:var(--txt-d);border:1px solid var(--brd);cursor:pointer" onclick="toggleRefSec('+sec.id+')">KAPALI</span>'
-      +(editBtns ? '<div style="display:flex;gap:6px">'+editBtns+'</div>' : '')
-      +'</div>';
+    hdr.innerHTML='<span class="ref-title">'+sec.title+'</span>'
+      +'<div style="display:flex;align-items:center;gap:8px">'+editBtns+'<span class="ref-arrow">▼</span></div>';
+    hdr.querySelector('.ref-arrow').onclick=function(){toggleRefSec(sec.id);};
+    hdr.querySelector('.ref-title').onclick=function(){toggleRefSec(sec.id);};
+    hdr.querySelector('.ref-arrow').style.transform='rotate(-90deg)';
     if(editMode){
       hdr.querySelectorAll('.nebtn,.ndbtn')[0].onclick=function(){editRefSection(sec.id);};
       hdr.querySelectorAll('.nebtn,.ndbtn')[1].onclick=function(){deleteRefSection(sec.id);};
@@ -2368,15 +2362,10 @@ function renderRef(){
 
 function toggleRefSec(id){
   const body=document.getElementById('refbody-'+id);
+  const arrow=document.querySelector('#ref-sec-'+id+' .ref-arrow');
   if(!body) return;
   const closed=body.classList.toggle('closed');
-  const label=document.getElementById('ref-toggle-'+id);
-  if(label){
-    label.textContent=closed?'KAPALI':'AÇIK';
-    label.style.color=closed?'var(--txt-d)':'var(--acc)';
-    label.style.borderColor=closed?'var(--brd)':'var(--acc)';
-    label.style.background=closed?'var(--surf2)':'var(--pb)';
-  }
+  arrow.style.transform=closed?'rotate(-90deg)':'rotate(0deg)';
 }
 
 /* Section CRUD */
@@ -2983,10 +2972,7 @@ function exportPDF(){
   html+='th{background:#333;color:#fff;padding:7px 10px;text-align:left;font-size:10px}';
   html+='td{padding:6px 10px;border-bottom:1px solid #eee}.sy{font-size:14px}';
   html+='tr:nth-child(even) td{background:#fafafa}.pill{display:inline-block;padding:1px 7px;border-radius:10px;background:#e8e8e8;font-size:9px}';
-  html+='
-.ref-onoff{transition:all .2s}
-.ref-onoff:hover{opacity:.8}
-</style></head><body>';
+  html+='</style></head><body>';
   html+='<h1>Suryanice Sozluk</h1><div class="subtitle">Turkce - Suryanice - Ingilizce &nbsp; '+dateStr+'</div>';
   if(incSozluk){
     var filtered=typeFilter==='hepsi'?words:words.filter(function(w){return w.type===typeFilter;});
