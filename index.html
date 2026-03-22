@@ -2252,7 +2252,7 @@ function showToast(msg){
 function saveApiKey(){
   const key=document.getElementById('apiKeyInput').value.trim();
   if(!key){showToast('⚠ Key boş olamaz');return;}
-  if(!key.startsWith('sk-')){showToast('⚠ Geçersiz key formatı');return;}
+  if(!key.startsWith('sk-ant-')){showToast('⚠ Geçersiz key formatı');return;}
   localStorage.setItem('claude_api_key',key);
   closeApiKeyModal();
   showToast('✦ API Key kaydedildi');
@@ -2264,7 +2264,24 @@ function scheduleAutoFetch(){
   clearTimeout(autoFetchTimer);
   const val=document.getElementById('inp_tr').value.trim();
   if(!val){return;}
-  autoFetchTimer=setTimeout(()=>fetchSyriac(),1000);
+  autoFetchTimer=setTimeout(()=>{
+    const key=getClaudeKey();
+    if(key){ fetchSyriac(); }
+    else { fetchEnglish(val); }
+  },1000);
+}
+
+async function fetchEnglish(word){
+  const enEl=document.getElementById('inp_en');
+  if(enEl.value.trim()) return;
+  try{
+    const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=tr|en');
+    const d=await r.json();
+    const translated=d?.responseData?.translatedText;
+    if(translated && translated.toLowerCase()!==word.toLowerCase()){
+      enEl.value=translated;
+    }
+  }catch(e){}
 }
 
 async function fetchSyriac(){
