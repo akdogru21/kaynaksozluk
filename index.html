@@ -3283,7 +3283,7 @@ function renderHomeStats(){
   set('hs-week', words.filter(w=>w.date>=thisWeek).length);
   set('hs-types', types);
   set('hs-favs', favWords.size);
-  const sortedW = words.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const sortedW = words.slice().sort((a,b)=>b.date>a.date?-1:b.date<a.date?1:0);
   set('hs-last', sortedW[0]?.turkish || '—');
 
 }
