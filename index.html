@@ -1146,9 +1146,14 @@ async function askClaude(word){
   if(!r.ok){throw new Error((data.error&&(data.error.message||JSON.stringify(data.error)))||'API hatası: '+r.status);}
   if(data.type==='error'){throw new Error(data.error&&data.error.message||JSON.stringify(data));}
   if(!data.content||!data.content[0]){throw new Error('Geçersiz API yanıtı: '+JSON.stringify(data).slice(0,200));}
-  const text=data.content[0].text.trim().replace(/```json|```/g,'').trim();
-  try{return JSON.parse(text);}
-  catch(e){throw new Error('JSON parse hatası: '+text.slice(0,100));}
+  let text=data.content[0].text.trim();
+  // Markdown kod bloklarını temizle
+  text=text.replace(/```json|```/g,'').trim();
+  // JSON kısmını bul (bazen önünde/arkasında metin olabilir)
+  const jsonMatch=text.match(/\{[\s\S]*\}/);
+  if(!jsonMatch) throw new Error('JSON bulunamadı: '+text.slice(0,100));
+  try{return JSON.parse(jsonMatch[0]);}
+  catch(e){throw new Error('JSON parse hatası: '+jsonMatch[0].slice(0,100));}
 }
 
 
@@ -2284,7 +2289,14 @@ let autoFetchTimer=null;
 function scheduleAutoFetch(){
   clearTimeout(autoFetchTimer);
   const val=document.getElementById('inp_tr').value.trim();
-  if(!val){return;}
+  if(!val){
+    // Türkçe temizlendiyse İngilizce ve SEDRA durumunu da temizle
+    document.getElementById('inp_en').value='';
+    const sd=document.getElementById('sedra-status'); if(sd) sd.remove();
+    return;
+  }
+  // Yeni kelime yazılınca İngilizce'yi temizle
+  document.getElementById('inp_en').value='';
   autoFetchTimer=setTimeout(()=>{
     fetchEnglish(val);
     if(getClaudeKey()) fetchSyriac();
