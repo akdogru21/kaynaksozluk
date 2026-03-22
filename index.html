@@ -1462,6 +1462,8 @@ function sortT(key){
 }
 function getFiltered(){
   let list=[...words];
+  if(showOnlyFavs) list=list.filter(w=>favWords.has(w.id));
+  if(showOnlyEksik) list=list.filter(w=>!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='');
   if(q){const ql=q.toLowerCase();list=list.filter(w=>{
     if(filterLang==='tr')return(w.tr||'').toLowerCase().includes(ql);
     if(filterLang==='sy')return(w.sy||'').toLowerCase().includes(ql);
