@@ -1042,16 +1042,20 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 <!-- API Key Modal -->
 <div id="apiKeyModal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);align-items:center;justify-content:center">
   <div style="background:var(--surf);border:1.5px solid var(--acc);border-radius:12px;padding:28px;width:min(460px,90vw)">
-    <div style="font-family:var(--fh);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:6px">Claude API Key</div>
-    <p style="font-size:13px;color:var(--txt-d);margin-bottom:16px;line-height:1.6">Yapay zeka kelime araması için Anthropic API key gerekli. Key <strong>yalnızca bu cihazda</strong> saklanır, dosyaya yazılmaz.</p>
+    <div style="font-family:var(--fh);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:6px">API Key</div>
+    <p style="font-size:13px;color:var(--txt-d);margin-bottom:16px;line-height:1.6">Süryanice getirmek için API key gerekli. Key <strong>yalnızca bu cihazda</strong> saklanır.</p>
+    <div class="igroup" style="margin-bottom:12px">
+      <label class="ilabel">Google Gemini Key (Ücretsiz)</label>
+      <input type="password" class="winput" id="geminiKeyInput" placeholder="AIza...">
+    </div>
     <div class="igroup" style="margin-bottom:16px">
-      <label class="ilabel">API Key</label>
+      <label class="ilabel">Claude Key (Anthropic)</label>
       <input type="password" class="winput" id="apiKeyInput" placeholder="sk-ant-api03-...">
     </div>
-    <div style="display:flex;gap:8px;align-items:center">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="btn btn-p" onclick="saveApiKey()">Kaydet</button>
       <button class="btn btn-s" onclick="closeApiKeyModal()">İptal</button>
-      <a href="https://console.anthropic.com" target="_blank" style="font-family:var(--fm);font-size:9px;color:var(--acc-d);letter-spacing:1px;margin-left:auto">Key al →</a>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-family:var(--fm);font-size:9px;color:var(--acc-d);letter-spacing:1px;margin-left:auto">Gemini key al →</a>
     </div>
   </div>
 </div>
@@ -1124,6 +1128,7 @@ function requireAuth(){
   return true;
 }
 function getClaudeKey(){return localStorage.getItem('claude_api_key')||'';}
+function getGeminiKey(){return localStorage.getItem('gemini_api_key')||'';}
 async function askClaude(word){
   const CLAUDE_KEY=getClaudeKey();
   if(!CLAUDE_KEY){showApiKeyModal();throw new Error('API key girilmedi');}
@@ -1143,6 +1148,23 @@ async function askClaude(word){
   catch(e){throw new Error('JSON parse hatası: '+text.slice(0,100));}
 }
 
+
+async function askGemini(word){
+  const GEMINI_KEY=getGeminiKey();
+  if(!GEMINI_KEY) throw new Error('Gemini key yok');
+  const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver, başka hiçbir şey yazma, markdown kullanma: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_KEY,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+  });
+  const data=await r.json();
+  if(!r.ok) throw new Error(data?.error?.message||'Gemini API hatası');
+  const text=data?.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  const clean=text.trim().replace(/```json|```/g,'').trim();
+  try{return JSON.parse(clean);}
+  catch(e){throw new Error('JSON parse hatası: '+clean.slice(0,100));}
+}
 
 /* ── SUPABASE ─────────────────────────────── */
 const SB_URL='https://kluwiefnxbkiswpusmdn.supabase.co';
@@ -2235,7 +2257,9 @@ function showApiKeyModal(){
   modal.style.display='flex';
   const existing=getClaudeKey();
   if(existing) document.getElementById('apiKeyInput').value=existing;
-  setTimeout(()=>document.getElementById('apiKeyInput').focus(),100);
+  const existingGemini=getGeminiKey();
+  if(existingGemini) document.getElementById('geminiKeyInput').value=existingGemini;
+  setTimeout(()=>document.getElementById('geminiKeyInput').focus(),100);
 }
 function closeApiKeyModal(){
   document.getElementById('apiKeyModal').style.display='none';
@@ -2264,35 +2288,22 @@ function scheduleAutoFetch(){
   clearTimeout(autoFetchTimer);
   const val=document.getElementById('inp_tr').value.trim();
   if(!val){return;}
-  autoFetchTimer=setTimeout(()=>{
-    const key=getClaudeKey();
-    if(key){ fetchSyriac(); }
-    else { fetchEnglish(val); }
-  },1000);
-}
-
-async function fetchEnglish(word){
-  const enEl=document.getElementById('inp_en');
-  if(enEl.value.trim()) return;
-  try{
-    const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=tr|en');
-    const d=await r.json();
-    const translated=d?.responseData?.translatedText;
-    if(translated && translated.toLowerCase()!==word.toLowerCase()){
-      enEl.value=translated;
-    }
-  }catch(e){}
+  autoFetchTimer=setTimeout(()=>fetchSyriac(),1000);
 }
 
 async function fetchSyriac(){
-  const key=getClaudeKey();
-  if(!key){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
+  const claudeKey=getClaudeKey();
+  const geminiKey=getGeminiKey();
+  if(!claudeKey && !geminiKey){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
   const word=document.getElementById('inp_tr').value.trim()||document.getElementById('inp_en').value.trim();
   if(!word){showToast('⚠ Önce Türkçe veya İngilizce yazın');return;}
   const btn=document.getElementById('fetchSyBtn');
   btn.textContent='⏳';btn.disabled=true;
   try{
-    const data=await askClaude(word);
+    let data;
+    if(geminiKey){try{data=await askGemini(word);}catch(e){console.warn('Gemini hata, Claude deneniyor:',e.message);}}
+    if(!data && claudeKey){data=await askClaude(word);}
+    if(!data) throw new Error('Geçerli API key bulunamadı');
     // Fill Syriac field (script only, no transliteration)
     const syScript=(data.sy||'').split('(')[0].trim();
     const syTranslit=(data.sy||'').match(/\(([^)]+)\)/)?.[1]||'';
