@@ -504,7 +504,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <div class="home-stat"><div class="home-stat-num" id="hs-week">—</div><div class="home-stat-lbl">Bu Hafta</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-types">—</div><div class="home-stat-lbl">Kelime Türü</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-favs">—</div><div class="home-stat-lbl">Favori</div></div>
-        <div class="home-stat"><div class="home-stat-num" id="hs-last" style="font-size:0.75em;letter-spacing:0.3px;line-height:1.2;">—</div><div class="home-stat-lbl">Son Eklenen</div></div>
+        <div class="home-stat"><div class="home-stat-num" id="hs-last-tr" style="font-size:0.75em;letter-spacing:0.3px;line-height:1.4;">—</div><div class="home-stat-num" id="hs-last-sy" style="font-size:0.7em;letter-spacing:0.3px;line-height:1.4;opacity:.7;">—</div><div class="home-stat-num" id="hs-last-en" style="font-size:0.7em;letter-spacing:0.3px;line-height:1.4;opacity:.7;">—</div><div class="home-stat-lbl">Son Eklenen</div></div>
 
       </div>
     </div>
@@ -1150,20 +1150,18 @@ async function askClaude(word){
 
 
 async function askGemini(word){
-  const GEMINI_KEY=getGeminiKey();
-  if(!GEMINI_KEY) throw new Error('Gemini key yok');
+  const KEY=getGeminiKey();
+  if(!KEY) throw new Error('Gemini key yok');
   const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver, başka hiçbir şey yazma, markdown kullanma: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_KEY,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+KEY,{
+    method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
   });
-  const data=await r.json();
-  if(!r.ok) throw new Error(data?.error?.message||'Gemini API hatası');
-  const text=data?.candidates?.[0]?.content?.parts?.[0]?.text||'';
-  const clean=text.trim().replace(/```json|```/g,'').trim();
-  try{return JSON.parse(clean);}
-  catch(e){throw new Error('JSON parse hatası: '+clean.slice(0,100));}
+  const d=await r.json();
+  if(!r.ok) throw new Error(d?.error?.message||'Gemini hatası');
+  const text=d?.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  try{return JSON.parse(text.trim().replace(/```json|```/g,'').trim());}
+  catch(e){throw new Error('JSON hatası: '+text.slice(0,80));}
 }
 
 /* ── SUPABASE ─────────────────────────────── */
@@ -1202,7 +1200,7 @@ async function initCloud(){
         save();
       } else if(ws.length>=words.length){
         // Load from cloud only if cloud has more or equal words
-        words=ws.map(w=>({id:w.id,sbId:w.id,tr:w.tr||'',sy:w.sy||'',en:w.en||'',type:w.type||'',date:w.date||today}));
+        words=ws.map(w=>({id:w.id,sbId:w.id,tr:w.tr||'',sy:w.sy||'',en:w.en||'',type:w.type||'',date:w.date||today,created_at:w.created_at||''}));
         nextId=Math.max(...words.map(w=>w.id))+1;
         save();
       }
@@ -2255,9 +2253,9 @@ const _origRender=render;
 function showApiKeyModal(){
   const modal=document.getElementById('apiKeyModal');
   modal.style.display='flex';
-  const existing=getClaudeKey();
-  if(existing) document.getElementById('apiKeyInput').value=existing;
+  const existingClaude=getClaudeKey();
   const existingGemini=getGeminiKey();
+  if(existingClaude) document.getElementById('apiKeyInput').value=existingClaude;
   if(existingGemini) document.getElementById('geminiKeyInput').value=existingGemini;
   setTimeout(()=>document.getElementById('geminiKeyInput').focus(),100);
 }
@@ -2288,22 +2286,37 @@ function scheduleAutoFetch(){
   clearTimeout(autoFetchTimer);
   const val=document.getElementById('inp_tr').value.trim();
   if(!val){return;}
-  autoFetchTimer=setTimeout(()=>fetchSyriac(),1000);
+  autoFetchTimer=setTimeout(()=>{
+    const hasKey=getClaudeKey()||getGeminiKey();
+    if(hasKey){fetchSyriac();}
+    else{fetchEnglish(val);}
+  },1000);
+}
+
+async function fetchEnglish(word){
+  const enEl=document.getElementById('inp_en');
+  if(!enEl||enEl.value.trim()) return;
+  try{
+    const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=tr|en');
+    const d=await r.json();
+    const t=d?.responseData?.translatedText;
+    if(t&&t.toLowerCase()!==word.toLowerCase()) enEl.value=t;
+  }catch(e){}
 }
 
 async function fetchSyriac(){
   const claudeKey=getClaudeKey();
   const geminiKey=getGeminiKey();
-  if(!claudeKey && !geminiKey){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
+  if(!claudeKey&&!geminiKey){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
   const word=document.getElementById('inp_tr').value.trim()||document.getElementById('inp_en').value.trim();
   if(!word){showToast('⚠ Önce Türkçe veya İngilizce yazın');return;}
   const btn=document.getElementById('fetchSyBtn');
   btn.textContent='⏳';btn.disabled=true;
   try{
     let data;
-    if(geminiKey){try{data=await askGemini(word);}catch(e){console.warn('Gemini hata, Claude deneniyor:',e.message);}}
-    if(!data && claudeKey){data=await askClaude(word);}
-    if(!data) throw new Error('Geçerli API key bulunamadı');
+    if(geminiKey){try{data=await askGemini(word);}catch(e){console.warn('Gemini hata:',e.message);}}
+    if(!data&&claudeKey){data=await askClaude(word);}
+    if(!data) throw new Error('API key ile bağlanılamadı');
     // Fill Syriac field (script only, no transliteration)
     const syScript=(data.sy||'').split('(')[0].trim();
     const syTranslit=(data.sy||'').match(/\(([^)]+)\)/)?.[1]||'';
@@ -3311,8 +3324,11 @@ function renderHomeStats(){
   set('hs-week', words.filter(w=>w.date>=thisWeek).length);
   set('hs-types', types);
   set('hs-favs', favWords.size);
-  const sortedW = words.slice().sort((a,b)=>b.date>a.date?-1:b.date<a.date?1:0);
-  set('hs-last', sortedW[0]?.tr || '—');
+  const sortedW = words.slice().sort((a,b)=>b.id-a.id);
+  const lastW = sortedW.find(w=>w.tr && w.tr.trim()!=='');
+  set('hs-last-tr', lastW?.tr || '—');
+  set('hs-last-sy', lastW?.sy || '—');
+  set('hs-last-en', lastW?.en || '—');
 
 }
 
