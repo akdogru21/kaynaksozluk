@@ -298,7 +298,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   .pool-word{padding:5px 10px;font-size:0.85rem}
   #livePreview{font-size:0.9rem;padding:8px}
 
-  /* Flashcard */
+  /* Kelime Oyunu */
   #fcCard{padding:20px 16px;min-height:190px;max-width:100%}
   #fcFrontText{font-size:1.3rem}
   #fcBtns{gap:10px;max-width:100%}
@@ -444,34 +444,34 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       <div class="tbl-hdr"><span class="tbl-ttl">Bölümler</span></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0">
 
-        <div class="home-card" onclick="switchTab('sozluk',document.querySelector('.tab:nth-child(2)'))">
+        <div class="home-card" onclick="switchTab('sozluk',this)">
           <div class="home-card-icon">📖</div>
           <div class="home-card-title">Sözlük</div>
           <div class="home-card-desc">Türkçe, Süryanice ve İngilizce kelimeler. Arama, filtreleme, bulut senkronizasyonu.</div>
         </div>
 
-        <div class="home-card" onclick="switchTab('cumle',document.querySelector('.tab:nth-child(3)'))">
+        <div class="home-card" onclick="switchTab('flashcard',this)">
+          <div class="home-card-icon">🎴</div>
+          <div class="home-card-title">Kelime Oyunu</div>
+          <div class="home-card-desc">Kelime kartlarıyla test yap. Dil ve tür seçerek çalış, başarı oranını gör.</div>
+        </div>
+
+        <div class="home-card" onclick="switchTab('cumle',this)">
           <div class="home-card-icon">✏️</div>
           <div class="home-card-title">Cümle Kur</div>
           <div class="home-card-desc">Kelimelerden cümle oluştur. SOV, VSO, SVO sözdizimi ile otomatik sıralama.</div>
         </div>
 
-        <div class="home-card" onclick="switchTab('notlar',document.querySelector('.tab:nth-child(4)'))">
+        <div class="home-card" onclick="switchTab('notlar',this)">
           <div class="home-card-icon">📝</div>
           <div class="home-card-title">Notlar</div>
           <div class="home-card-desc">40+ dilbilgisi kuralı. Fiil çekimleri, isim halleri, zamir kuralları ve daha fazlası.</div>
         </div>
 
-        <div class="home-card" onclick="switchTab('referans',document.querySelector('.tab:nth-child(5)'))">
-          <div class="home-card-icon">📚</div>
-          <div class="home-card-title">Referans</div>
-          <div class="home-card-desc">Zamirler, sayılar, günler, aylar, bağlaçlar. Üç dilli hızlı başvuru tabloları.</div>
-        </div>
-
-        <div class="home-card" onclick="switchTab('flashcard',this)">
-          <div class="home-card-icon">🃏</div>
-          <div class="home-card-title">Flashcard</div>
-          <div class="home-card-desc">Kelime kartlarıyla test yap. Dil ve tür seçerek çalış, başarı oranını gör.</div>
+        <div class="home-card" onclick="switchTab('kaynaklar',this)">
+          <div class="home-card-icon">🔖</div>
+          <div class="home-card-title">Kaynaklar</div>
+          <div class="home-card-desc">Süryanice videolar, dosyalar ve faydalı bağlantılar.</div>
         </div>
 
         <div class="home-card" onclick="switchToPage('istatistik',document.getElementById('inb-istatistik'))">
@@ -2500,7 +2500,7 @@ function showSedraStatus(found, glosses, category, syWord){
       + '<a href="'+sedraUrl+'" target="_blank" style="color:#3a9a5a;text-decoration:none;border:1px solid rgba(58,154,90,.4);border-radius:4px;padding:3px 10px;font-size:10px;font-family:var(--fm);" title="SEDRA sözlüğünü aç">🔗 SEDRA&#39;da Ara</a>'
       + '</div>'
       + '</div>'
-      + '<div style="margin-top:5px;font-size:10px;opacity:.65;font-style:italic;">ℹ️ Önce 📋 Kopyala'ya basın, SEDRA açılınca arama kutusuna Ctrl+V ile yapıştırın</div>'
+      + '<div style="margin-top:5px;font-size:10px;opacity:.65;font-style:italic;">ℹ️ Önce 📋 Kopyala butonuna basın, SEDRA açılınca Ctrl+V ile yapıştırın</div>'
       + '<div style="margin-top:3px;font-size:10px;opacity:.5;">Kaynak: Beth Mardutho · SEDRA IV · Margoliouth / Payne Smith / Brock-Kiraz sözlükleri</div>';
     setTimeout(function(){
       var btn=document.getElementById(copyId);
@@ -2647,97 +2647,6 @@ function filterRef(){
 }
 
 
-
-
-/* ── KAYNAKLAR ─────────────────────────────── */
-const KAYNAK_KEY='sozluk_kaynaklar_v1';
-let kaynaklar=[];
-
-function loadKaynaklar(){
-  try{const r=localStorage.getItem(KAYNAK_KEY);if(r)kaynaklar=JSON.parse(r);}catch(e){kaynaklar=[];}
-  renderKaynaklar();
-}
-function saveKaynaklar(){try{localStorage.setItem(KAYNAK_KEY,JSON.stringify(kaynaklar));}catch(e){}}
-
-function renderKaynaklar(){
-  const list=document.getElementById('kaynakList');
-  const empty=document.getElementById('kaynakEmpty');
-  if(!list) return;
-  if(!kaynaklar.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
-  if(empty)empty.style.display='none';
-  list.innerHTML=kaynaklar.map((k,i)=>{
-    const isYoutube=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
-    const isVideo=isYoutube||k.type==='video';
-    const icon=isVideo?'▶':'📄';
-    const typeLabel=isVideo?'Video':'Dosya/Link';
-    // YouTube embed ID
-    let embedHtml='';
-    if(isYoutube&&k.url){
-      const match=k.url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-      if(match){
-        embedHtml=`<div style="margin-top:10px;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
-          <iframe src="https://www.youtube.com/embed/${match[1]}" frameborder="0" allowfullscreen
-            style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px"></iframe>
-        </div>`;
-      }
-    }
-    return `<div style="background:var(--surf);border:1px solid var(--brd-s);border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--acc)">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-            <span style="font-size:1.1rem">${icon}</span>
-            <span style="font-weight:700;font-size:0.95rem;color:var(--txt)">${k.title||'Başlıksız'}</span>
-            <span style="font-family:var(--fm);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;background:var(--pb);color:var(--acc);border-radius:20px">${typeLabel}</span>
-          </div>
-          ${k.desc?`<div style="font-size:0.85rem;color:var(--txt-d);margin-bottom:8px">${k.desc}</div>`:''}
-          ${k.url?`<a href="${k.url}" target="_blank" style="font-family:var(--fm);font-size:11px;color:var(--acc);word-break:break-all;opacity:.8">${k.url}</a>`:''}
-          ${embedHtml}
-        </div>
-        <div class="edit-only" style="display:${editMode?'flex':'none'};gap:4px;flex-shrink:0">
-          <button onclick="editKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✏️</button>
-          <button onclick="deleteKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px;color:var(--bad)" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-let editingKaynakIdx=-1;
-function showKaynakModal(idx){
-  editingKaynakIdx=idx!==undefined?idx:-1;
-  const k=idx>=0?kaynaklar[idx]:null;
-  document.getElementById('kaynakTitle').value=k?k.title:'';
-  document.getElementById('kaynakUrl').value=k?k.url:'';
-  document.getElementById('kaynakDesc').value=k?k.desc:'';
-  document.getElementById('kaynakType').value=k?k.type:'link';
-  document.getElementById('kaynakModal').style.display='flex';
-  setTimeout(()=>document.getElementById('kaynakTitle').focus(),100);
-}
-function closeKaynakModal(){document.getElementById('kaynakModal').style.display='none';}
-function saveKaynak(){
-  const title=document.getElementById('kaynakTitle').value.trim();
-  const url=document.getElementById('kaynakUrl').value.trim();
-  const desc=document.getElementById('kaynakDesc').value.trim();
-  const type=document.getElementById('kaynakType').value;
-  if(!title&&!url){showToast('⚠ Başlık veya link girin');return;}
-  // YouTube ise type otomatik video
-  const isYt=url.includes('youtube.com')||url.includes('youtu.be');
-  const finalType=isYt?'video':type;
-  if(editingKaynakIdx>=0){
-    kaynaklar[editingKaynakIdx]={title,url,desc,type:finalType};
-  } else {
-    kaynaklar.push({title,url,desc,type:finalType});
-  }
-  saveKaynaklar();renderKaynaklar();closeKaynakModal();
-  showToast('✦ Kaynak kaydedildi');
-}
-function editKaynak(i){if(!requireAuth())return;showKaynakModal(i);}
-function deleteKaynak(i){
-  if(!requireAuth())return;
-  if(!confirm('Bu kaynak silinecek. Emin misiniz?')) return;
-  kaynaklar.splice(i,1);
-  saveKaynaklar();renderKaynaklar();showToast('Kaynak silindi');
-}
 
 /* ── REFERANS ─────────────────────────────── */
 const REF_KEY='sozluk_ref_v2';
