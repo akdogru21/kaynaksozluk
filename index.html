@@ -1156,7 +1156,7 @@ function getClaudeKey(){return localStorage.getItem('claude_api_key')||'';}
 async function askClaude(word){
   const CLAUDE_KEY=getClaudeKey();
   if(!CLAUDE_KEY){showApiKeyModal();throw new Error('API key girilmedi');}
-  const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin Süryanice, Türkçe ve İngilizce karşılıklarını bul. Süryanice yazıyı hem Süryanice alfabesiyle hem de Latin transliterasyonuyla ver. Sadece JSON formatında yanıt ver, başka hiçbir şey yazma, markdown kullanma: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ (transliterasyon)","en":"English meaning","type":"isim"}';
+  const prompt='Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. "'+word+'" kelimesinin en yaygın, standart Klasik Süryanice karşılığını ver. Sadece tek bir kelime ver, alternatif verme. Sadece JSON formatında yanıt ver, başka hiçbir şey yazma, markdown kullanma: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ","en":"English meaning","type":"isim/fiil/sıfat/zarf/zamir/edat/bağlaç"}';
   const r=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{
@@ -1165,7 +1165,7 @@ async function askClaude(word){
       'anthropic-version':'2023-06-01',
       'anthropic-dangerous-direct-browser-access':'true'
     },
-    body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:300,messages:[{role:'user',content:prompt}]})
+    body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:200,temperature:0,messages:[{role:'user',content:prompt}]})
   });
   const data=await r.json();
   if(!r.ok){throw new Error((data.error&&(data.error.message||JSON.stringify(data.error)))||'API hatası: '+r.status);}
@@ -2378,6 +2378,13 @@ async function fetchSyriac(){
   if(!claudeKey){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
   const word=document.getElementById('inp_tr').value.trim()||document.getElementById('inp_en').value.trim();
   if(!word){showToast('⚠ Önce Türkçe veya İngilizce yazın');return;}
+  // Süryanice zaten doluysa sadece SEDRA doğrulaması yap
+  const existingSy=document.getElementById('inp_sy').value.trim();
+  if(existingSy){
+    showToast('✦ SEDRA doğrulanıyor...');
+    verifySedra(existingSy);
+    return;
+  }
   const btn=document.getElementById('fetchSyBtn');
   btn.textContent='⏳';btn.disabled=true;
   try{
