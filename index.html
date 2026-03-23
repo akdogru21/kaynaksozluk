@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-[data-theme="gece"]{--bg:#000000;--surf:#111111;--surf2:#1c1c1c;--surf3:#282828;--acc:#ffffff;--acc-l:#ffffff;--acc-d:#bbbbbb;--txt:#ffffff;--txt-d:#999999;--bad:#ff5555;--brd:rgba(255,255,255,.18);--brd-s:rgba(255,255,255,.08);--pb:rgba(255,255,255,.1);--pc:#ffffff;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
-[data-theme="krem"]{--bg:#f8f6f0;--surf:#fffef8;--surf2:#f0ede4;--surf3:#e4dfd2;--acc:#b8962e;--acc-l:#d4af4a;--acc-d:#1a2744;--txt:#1a2744;--txt-d:#3d5080;--bad:#cc2222;--brd:rgba(26,39,68,.18);--brd-s:rgba(26,39,68,.08);--pb:rgba(184,150,46,.1);--pc:#b8962e;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
-[data-theme="bahar"]{--bg:#fffef9;--surf:#ffffff;--surf2:#f5efe4;--surf3:#ece3d4;--acc:#3a2010;--acc-l:#1e0e04;--acc-d:#7a5a40;--txt:#1e0e04;--txt-d:#6a5040;--bad:#aa2222;--brd:rgba(58,32,16,.22);--brd-s:rgba(58,32,16,.1);--pb:rgba(58,32,16,.07);--pc:#1e0e04;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="gece"]{--bg:#0a0a0a;--surf:#141414;--surf2:#1e1e1e;--surf3:#2a2a2a;--acc:#c9a84c;--acc-l:#e0c070;--acc-d:#9a7a3a;--txt:#f0ede6;--txt-d:#8a8070;--bad:#ff5555;--brd:rgba(201,168,76,.2);--brd-s:rgba(201,168,76,.08);--pb:rgba(201,168,76,.1);--pc:#c9a84c;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="krem"]{--bg:#f5f2ea;--surf:#faf8f2;--surf2:#ede9df;--surf3:#e0dbd0;--acc:#8b6914;--acc-l:#b8962e;--acc-d:#1a2744;--txt:#1a2744;--txt-d:#3d5080;--bad:#cc2222;--brd:rgba(26,39,68,.16);--brd-s:rgba(26,39,68,.07);--pb:rgba(139,105,20,.08);--pc:#8b6914;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="bahar"]{--bg:#fdf6ee;--surf:#fff9f2;--surf2:#f5ebe0;--surf3:#ead9c8;--acc:#7a3e10;--acc-l:#a05520;--acc-d:#5a2e08;--txt:#2a1505;--txt-d:#7a5a3a;--bad:#cc2222;--brd:rgba(122,62,16,.2);--brd-s:rgba(122,62,16,.08);--pb:rgba(122,62,16,.07);--pc:#7a3e10;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:1rem;font-weight:500;line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .35s,color .35s}
 .app{max-width:900px;margin:0 auto;padding:0 20px 64px}
@@ -20,7 +20,8 @@ header{text-align:center;padding:48px 0 30px;border-bottom:1px solid var(--brd);
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 .stats-row{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-.stat-card{flex:1;min-width:120px;background:var(--surf);border:1px solid var(--brd-s);padding:16px 18px;position:relative;overflow:hidden;border-radius:8px;transition:background .35s}
+.stat-card{flex:1;min-width:120px;background:var(--surf);border:1px solid var(--brd-s);padding:16px 18px;position:relative;overflow:hidden;border-radius:10px;transition:background .35s,box-shadow .2s;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.stat-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.08)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--acc);opacity:.7}
 .stat-num{font-family:var(--fh);font-size:28px;color:var(--acc);line-height:1;margin-bottom:4px}
 .stat-lbl{font-size:10px;color:var(--txt-d);letter-spacing:2px;text-transform:uppercase;font-family:var(--fm)}
@@ -192,7 +193,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 .toast.show{transform:translateY(0);opacity:1}
 /* ── TABS ───────────────────────────────────── */
 .tabs{display:flex;gap:0;margin-bottom:28px;border-bottom:2px solid var(--brd)}
-.tab{padding:10px 22px;font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;font-weight:600}
+.tab{padding:10px 18px;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-d);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;font-weight:600}
 .tab:hover{color:var(--acc)}
 .tab.active{color:var(--acc);border-bottom-color:var(--acc)}
 .tab-content{display:none}
@@ -257,7 +258,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
   /* Sekmeler */
   .tabs{gap:0;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:2px}
-  .tab{padding:8px 12px;font-size:8px;letter-spacing:1px;white-space:nowrap;flex-shrink:0}
+  .tab{padding:8px 10px;font-size:7.5px;letter-spacing:0.8px;white-space:nowrap;flex-shrink:0}
 
   /* İstatistik kartları */
   .stats-row{gap:8px}
@@ -364,7 +365,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <!-- Başlık -->
     <div style="text-align:center;padding:24px 0 16px">
       <div style="font-family:var(--fm);font-size:0.65rem;letter-spacing:6px;text-transform:uppercase;color:var(--acc-d);margin-bottom:8px;opacity:.7">✦ Lexicon ✦</div>
-      <div style="font-size:1.8rem;font-weight:800;color:var(--acc);letter-spacing:1px;margin-bottom:4px">ܡܠܬܐ · Sözcük · Word</div>
+      <div style="font-size:1.9rem;font-weight:800;color:var(--acc);letter-spacing:1.5px;margin-bottom:6px;text-shadow:0 1px 2px rgba(0,0,0,.08)">ܡܠܬܐ · Sözcük · Word</div>
       <div style="font-family:var(--fm);font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--acc-d);opacity:.6">Türkçe — Süryanice — İngilizce</div>
       <div style="width:40px;height:1.5px;background:var(--acc);opacity:.3;margin:14px auto 0"></div>
     </div>
@@ -382,9 +383,9 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
       <!-- Tema daireleri -->
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="mini-theme active" id="mt-krem" onclick="setTheme('krem',this)" title="Beyaz Ton" style="background:linear-gradient(135deg,#f8f6f0 50%,#1a2744 50%)"></div>
-        <div class="mini-theme" id="mt-bahar" onclick="setTheme('bahar',this)" title="Sıcak Ton" style="background:linear-gradient(135deg,#fffef9 50%,#3a2010 50%)"></div>
-        <div class="mini-theme" id="mt-gece" onclick="setTheme('gece',this)" title="Koyu Ton" style="background:linear-gradient(135deg,#000000 50%,#ffffff 50%)"></div>
+        <div class="mini-theme active" id="mt-krem" onclick="setTheme('krem',this)" title="Beyaz Ton" style="background:linear-gradient(135deg,#f5f2ea 50%,#8b6914 50%)"></div>
+        <div class="mini-theme" id="mt-bahar" onclick="setTheme('bahar',this)" title="Sıcak Ton" style="background:linear-gradient(135deg,#fdf6ee 50%,#7a3e10 50%)"></div>
+        <div class="mini-theme" id="mt-gece" onclick="setTheme('gece',this)" title="Koyu Ton" style="background:linear-gradient(135deg,#0a0a0a 50%,#c9a84c 50%)"></div>
       </div>
       <!-- Ayırıcı -->
       <div style="width:1px;height:20px;background:var(--brd)"></div>
@@ -413,7 +414,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('anasayfa',this)">🏠 Ana Sayfa</button>
     <button class="tab" onclick="switchTab('sozluk',this)">📖 Sözlük</button>
-    <button class="tab" onclick="switchTab('flashcard',this)">🎴 Kelime Oyunu</button>
+    <button class="tab" onclick="switchTab('flashcard',this)">🎴 Kelime Öğren</button>
     <button class="tab" onclick="switchTab('cumle',this)">✏️ Cümle Kur</button>
     <button class="tab" onclick="switchTab('notlar',this)">📝 Notlar</button>
     <button class="tab" onclick="switchTab('kaynaklar',this)">🔖 Kaynaklar</button>
@@ -452,7 +453,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
         <div class="home-card" onclick="switchTab('flashcard',this)">
           <div class="home-card-icon">🎴</div>
-          <div class="home-card-title">Kelime Oyunu</div>
+          <div class="home-card-title">Kelime Öğren</div>
           <div class="home-card-desc">Kelime kartlarıyla test yap. Dil ve tür seçerek çalış, başarı oranını gör.</div>
         </div>
 
@@ -2500,7 +2501,7 @@ function showSedraStatus(found, glosses, category, syWord){
       + '<a href="'+sedraUrl+'" target="_blank" style="color:#3a9a5a;text-decoration:none;border:1px solid rgba(58,154,90,.4);border-radius:4px;padding:3px 10px;font-size:10px;font-family:var(--fm);" title="SEDRA sözlüğünü aç">🔗 SEDRA&#39;da Ara</a>'
       + '</div>'
       + '</div>'
-      + '<div style="margin-top:5px;font-size:10px;opacity:.65;font-style:italic;">ℹ️ Önce 📋 Kopyala butonuna basın, SEDRA açılınca Ctrl+V ile yapıştırın</div>'
+      + '<div style="margin-top:5px;font-size:10px;font-weight:600;color:#cc6600;background:rgba(204,102,0,.08);border:1px solid rgba(204,102,0,.2);border-radius:4px;padding:4px 8px;">ℹ️ Önce 📋 Kopyala butonuna basın, SEDRA açılınca Ctrl+V ile yapıştırın</div>'
       + '<div style="margin-top:3px;font-size:10px;opacity:.5;">Kaynak: Beth Mardutho · SEDRA IV · Margoliouth / Payne Smith / Brock-Kiraz sözlükleri</div>';
     setTimeout(function(){
       var btn=document.getElementById(copyId);
