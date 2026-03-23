@@ -396,13 +396,13 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       </div>
       <!-- Ayırıcı -->
       <div style="width:1px;height:20px;background:var(--brd)"></div>
-      <!-- İstatistik ve Flashcard ikonları -->
+      <!-- İstatistik ve Referans ikonları -->
       <div style="display:flex;align-items:center;gap:6px">
         <button class="icon-nav-btn" id="inb-istatistik" onclick="switchToPage('istatistik',this)" title="İstatistik">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 16V12M12 16V8M17 16V11"/></svg>
         </button>
-        <button class="icon-nav-btn" id="inb-flashcard" onclick="switchToPage('flashcard',this)" title="Flashcard">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        <button class="icon-nav-btn" id="inb-referans" onclick="switchTab('referans',this)" title="Referans Tabloları">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         </button>
       </div>
     </div>
@@ -413,9 +413,10 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('anasayfa',this)">🏠 Ana Sayfa</button>
     <button class="tab" onclick="switchTab('sozluk',this)">📖 Sözlük</button>
+    <button class="tab" onclick="switchTab('flashcard',this)">🎴 Kelime Oyunu</button>
     <button class="tab" onclick="switchTab('cumle',this)">✏️ Cümle Kur</button>
     <button class="tab" onclick="switchTab('notlar',this)">📝 Notlar</button>
-    <button class="tab" onclick="switchTab('referans',this)">📚 Referans</button>
+    <button class="tab" onclick="switchTab('kaynaklar',this)">🔖 Kaynaklar</button>
   </div>
 
   <!-- ANA SAYFA PANELİ -->
@@ -467,7 +468,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
           <div class="home-card-desc">Zamirler, sayılar, günler, aylar, bağlaçlar. Üç dilli hızlı başvuru tabloları.</div>
         </div>
 
-        <div class="home-card" onclick="switchToPage('flashcard',document.getElementById('inb-flashcard'))">
+        <div class="home-card" onclick="switchTab('flashcard',this)">
           <div class="home-card-icon">🃏</div>
           <div class="home-card-title">Flashcard</div>
           <div class="home-card-desc">Kelime kartlarıyla test yap. Dil ve tür seçerek çalış, başarı oranını gör.</div>
@@ -817,6 +818,21 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   </div><!-- /tab-notlar -->
 
   <!-- REFERANS PANELİ -->
+  <!-- KAYNAKLAR PANELİ -->
+  <div class="tab-content" id="tab-kaynaklar">
+    <div class="tbl-wrap" style="margin-bottom:16px">
+      <div class="tbl-hdr" style="display:flex;align-items:center;justify-content:space-between">
+        <span class="tbl-ttl">🔖 Kaynaklar</span>
+        <button class="abtn hl edit-only" onclick="showKaynakModal()" style="display:none"><span>＋</span>Kaynak Ekle</button>
+      </div>
+      <div style="padding:16px 20px">
+        <p style="font-size:0.9rem;color:var(--txt-d);line-height:1.8;margin-bottom:16px">Süryanice öğrenimine yardımcı dosyalar, videolar ve bağlantılar.</p>
+        <div id="kaynakList"></div>
+        <div id="kaynakEmpty" style="text-align:center;padding:32px;color:var(--txt-d);opacity:.5;font-style:italic">Henüz kaynak eklenmemiş.</div>
+      </div>
+    </div>
+  </div><!-- /tab-kaynaklar -->
+
   <div class="tab-content" id="tab-referans">
 
     <!-- Araç Çubuğu -->
@@ -1061,6 +1077,37 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     </div>
   </div>
 </div>
+<!-- Kaynaklar Modal -->
+<div id="kaynakModal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);align-items:center;justify-content:center">
+  <div style="background:var(--surf);border:1.5px solid var(--acc);border-radius:12px;padding:28px;width:min(480px,90vw)">
+    <div style="font-family:var(--fh);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:20px">Kaynak Ekle / Düzenle</div>
+    <div class="igroup" style="margin-bottom:14px">
+      <label class="ilabel">Başlık</label>
+      <input type="text" class="winput" id="kaynakTitle" placeholder="Örn: SEDRA Sözlüğü, Süryanice Dersleri...">
+    </div>
+    <div class="igroup" style="margin-bottom:14px">
+      <label class="ilabel">Link / URL</label>
+      <input type="text" class="winput" id="kaynakUrl" placeholder="https://... (YouTube, Drive, site vs.)">
+    </div>
+    <div class="igroup" style="margin-bottom:14px">
+      <label class="ilabel">Açıklama (isteğe bağlı)</label>
+      <textarea class="winput" id="kaynakDesc" rows="2" style="resize:vertical" placeholder="Kısa açıklama..."></textarea>
+    </div>
+    <div class="igroup" style="margin-bottom:20px">
+      <label class="ilabel">Tür</label>
+      <select class="wsel" id="kaynakType">
+        <option value="link">🔗 Bağlantı / Site</option>
+        <option value="video">▶ Video</option>
+        <option value="dosya">📄 Dosya</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-p" onclick="saveKaynak()">Kaydet</button>
+      <button class="btn btn-s" onclick="closeKaynakModal()">İptal</button>
+    </div>
+  </div>
+</div>
+
 <!-- Login Modal -->
 <div id="loginModal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);align-items:center;justify-content:center">
   <div style="background:var(--surf);border:1.5px solid var(--acc);border-radius:12px;padding:28px;width:min(400px,90vw)">
@@ -1680,6 +1727,7 @@ function switchTab(id, el){
   if(id==='referans'){renderRef();}
   if(id==='istatistik') renderIstatistik();
   if(id==='flashcard'){document.getElementById('fcArea').style.display='none';document.getElementById('fcResult').style.display='none';}
+  if(id==='kaynaklar'){renderKaynaklar();}
   if(id==='anasayfa'){renderHomeStats();}
   const iconBtn=document.getElementById('inb-'+id);
   if(iconBtn) iconBtn.classList.add('active');
@@ -2449,10 +2497,11 @@ function showSedraStatus(found, glosses, category, syWord){
       + '<span>✅ SEDRA doğrulandı' + catText + (glossText ? ' · <em>'+glossText+'</em>' : '') + '</span>'
       + '<div style="display:flex;gap:5px;flex-shrink:0">'
       + '<button id="'+copyId+'" style="background:var(--acc);color:var(--bg);border:none;border-radius:4px;padding:3px 10px;font-size:10px;font-family:var(--fm);cursor:pointer;letter-spacing:1px;">📋 Kopyala</button>'
-      + '<a href="'+sedraUrl+'" target="_blank" style="color:#3a9a5a;text-decoration:none;border:1px solid rgba(58,154,90,.4);border-radius:4px;padding:3px 10px;font-size:10px;font-family:var(--fm);">🔗 SEDRA</a>'
+      + '<a href="'+sedraUrl+'" target="_blank" style="color:#3a9a5a;text-decoration:none;border:1px solid rgba(58,154,90,.4);border-radius:4px;padding:3px 10px;font-size:10px;font-family:var(--fm);" title="SEDRA sözlüğünü aç">🔗 SEDRA&#39;da Ara</a>'
       + '</div>'
       + '</div>'
-      + '<div style="margin-top:4px;font-size:10px;opacity:.7;">Kaynak: Beth Mardutho · SEDRA IV · Margoliouth / Payne Smith / Brock-Kiraz sözlükleri</div>';
+      + '<div style="margin-top:5px;font-size:10px;opacity:.65;font-style:italic;">ℹ️ Önce 📋 Kopyala'ya basın, SEDRA açılınca arama kutusuna Ctrl+V ile yapıştırın</div>'
+      + '<div style="margin-top:3px;font-size:10px;opacity:.5;">Kaynak: Beth Mardutho · SEDRA IV · Margoliouth / Payne Smith / Brock-Kiraz sözlükleri</div>';
     setTimeout(function(){
       var btn=document.getElementById(copyId);
       if(btn) btn.onclick=function(){
@@ -2475,6 +2524,97 @@ function showSedraStatus(found, glosses, category, syWord){
   
   syEl.closest('.igroup').appendChild(div);
   if(found) showToast("✅ SEDRA'da doğrulandı");
+}
+
+
+/* ── KAYNAKLAR ─────────────────────────────── */
+const KAYNAK_KEY='sozluk_kaynaklar_v1';
+let kaynaklar=[];
+
+function loadKaynaklar(){
+  try{const r=localStorage.getItem(KAYNAK_KEY);if(r)kaynaklar=JSON.parse(r);}catch(e){kaynaklar=[];}
+  renderKaynaklar();
+}
+function saveKaynaklar(){try{localStorage.setItem(KAYNAK_KEY,JSON.stringify(kaynaklar));}catch(e){}}
+
+function renderKaynaklar(){
+  const list=document.getElementById('kaynakList');
+  const empty=document.getElementById('kaynakEmpty');
+  if(!list) return;
+  if(!kaynaklar.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  list.innerHTML=kaynaklar.map((k,i)=>{
+    const isYoutube=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
+    const isVideo=isYoutube||k.type==='video';
+    const icon=isVideo?'▶':'📄';
+    const typeLabel=isVideo?'Video':'Dosya/Link';
+    // YouTube embed ID
+    let embedHtml='';
+    if(isYoutube&&k.url){
+      const match=k.url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if(match){
+        embedHtml=`<div style="margin-top:10px;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
+          <iframe src="https://www.youtube.com/embed/${match[1]}" frameborder="0" allowfullscreen
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px"></iframe>
+        </div>`;
+      }
+    }
+    return `<div style="background:var(--surf);border:1px solid var(--brd-s);border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--acc)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:1.1rem">${icon}</span>
+            <span style="font-weight:700;font-size:0.95rem;color:var(--txt)">${k.title||'Başlıksız'}</span>
+            <span style="font-family:var(--fm);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;background:var(--pb);color:var(--acc);border-radius:20px">${typeLabel}</span>
+          </div>
+          ${k.desc?`<div style="font-size:0.85rem;color:var(--txt-d);margin-bottom:8px">${k.desc}</div>`:''}
+          ${k.url?`<a href="${k.url}" target="_blank" style="font-family:var(--fm);font-size:11px;color:var(--acc);word-break:break-all;opacity:.8">${k.url}</a>`:''}
+          ${embedHtml}
+        </div>
+        <div class="edit-only" style="display:${editMode?'flex':'none'};gap:4px;flex-shrink:0">
+          <button onclick="editKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✏️</button>
+          <button onclick="deleteKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px;color:var(--bad)" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let editingKaynakIdx=-1;
+function showKaynakModal(idx){
+  editingKaynakIdx=idx!==undefined?idx:-1;
+  const k=idx>=0?kaynaklar[idx]:null;
+  document.getElementById('kaynakTitle').value=k?k.title:'';
+  document.getElementById('kaynakUrl').value=k?k.url:'';
+  document.getElementById('kaynakDesc').value=k?k.desc:'';
+  document.getElementById('kaynakType').value=k?k.type:'link';
+  document.getElementById('kaynakModal').style.display='flex';
+  setTimeout(()=>document.getElementById('kaynakTitle').focus(),100);
+}
+function closeKaynakModal(){document.getElementById('kaynakModal').style.display='none';}
+function saveKaynak(){
+  const title=document.getElementById('kaynakTitle').value.trim();
+  const url=document.getElementById('kaynakUrl').value.trim();
+  const desc=document.getElementById('kaynakDesc').value.trim();
+  const type=document.getElementById('kaynakType').value;
+  if(!title&&!url){showToast('⚠ Başlık veya link girin');return;}
+  // YouTube ise type otomatik video
+  const isYt=url.includes('youtube.com')||url.includes('youtu.be');
+  const finalType=isYt?'video':type;
+  if(editingKaynakIdx>=0){
+    kaynaklar[editingKaynakIdx]={title,url,desc,type:finalType};
+  } else {
+    kaynaklar.push({title,url,desc,type:finalType});
+  }
+  saveKaynaklar();renderKaynaklar();closeKaynakModal();
+  showToast('✦ Kaynak kaydedildi');
+}
+function editKaynak(i){if(!requireAuth())return;showKaynakModal(i);}
+function deleteKaynak(i){
+  if(!requireAuth())return;
+  if(!confirm('Bu kaynak silinecek. Emin misiniz?')) return;
+  kaynaklar.splice(i,1);
+  saveKaynaklar();renderKaynaklar();showToast('Kaynak silindi');
 }
 
 /* ── REFERANS ─────────────────────────────── */
@@ -2507,6 +2647,97 @@ function filterRef(){
 }
 
 
+
+
+/* ── KAYNAKLAR ─────────────────────────────── */
+const KAYNAK_KEY='sozluk_kaynaklar_v1';
+let kaynaklar=[];
+
+function loadKaynaklar(){
+  try{const r=localStorage.getItem(KAYNAK_KEY);if(r)kaynaklar=JSON.parse(r);}catch(e){kaynaklar=[];}
+  renderKaynaklar();
+}
+function saveKaynaklar(){try{localStorage.setItem(KAYNAK_KEY,JSON.stringify(kaynaklar));}catch(e){}}
+
+function renderKaynaklar(){
+  const list=document.getElementById('kaynakList');
+  const empty=document.getElementById('kaynakEmpty');
+  if(!list) return;
+  if(!kaynaklar.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  list.innerHTML=kaynaklar.map((k,i)=>{
+    const isYoutube=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
+    const isVideo=isYoutube||k.type==='video';
+    const icon=isVideo?'▶':'📄';
+    const typeLabel=isVideo?'Video':'Dosya/Link';
+    // YouTube embed ID
+    let embedHtml='';
+    if(isYoutube&&k.url){
+      const match=k.url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if(match){
+        embedHtml=`<div style="margin-top:10px;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
+          <iframe src="https://www.youtube.com/embed/${match[1]}" frameborder="0" allowfullscreen
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px"></iframe>
+        </div>`;
+      }
+    }
+    return `<div style="background:var(--surf);border:1px solid var(--brd-s);border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--acc)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:1.1rem">${icon}</span>
+            <span style="font-weight:700;font-size:0.95rem;color:var(--txt)">${k.title||'Başlıksız'}</span>
+            <span style="font-family:var(--fm);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;background:var(--pb);color:var(--acc);border-radius:20px">${typeLabel}</span>
+          </div>
+          ${k.desc?`<div style="font-size:0.85rem;color:var(--txt-d);margin-bottom:8px">${k.desc}</div>`:''}
+          ${k.url?`<a href="${k.url}" target="_blank" style="font-family:var(--fm);font-size:11px;color:var(--acc);word-break:break-all;opacity:.8">${k.url}</a>`:''}
+          ${embedHtml}
+        </div>
+        <div class="edit-only" style="display:${editMode?'flex':'none'};gap:4px;flex-shrink:0">
+          <button onclick="editKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✏️</button>
+          <button onclick="deleteKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px;color:var(--bad)" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let editingKaynakIdx=-1;
+function showKaynakModal(idx){
+  editingKaynakIdx=idx!==undefined?idx:-1;
+  const k=idx>=0?kaynaklar[idx]:null;
+  document.getElementById('kaynakTitle').value=k?k.title:'';
+  document.getElementById('kaynakUrl').value=k?k.url:'';
+  document.getElementById('kaynakDesc').value=k?k.desc:'';
+  document.getElementById('kaynakType').value=k?k.type:'link';
+  document.getElementById('kaynakModal').style.display='flex';
+  setTimeout(()=>document.getElementById('kaynakTitle').focus(),100);
+}
+function closeKaynakModal(){document.getElementById('kaynakModal').style.display='none';}
+function saveKaynak(){
+  const title=document.getElementById('kaynakTitle').value.trim();
+  const url=document.getElementById('kaynakUrl').value.trim();
+  const desc=document.getElementById('kaynakDesc').value.trim();
+  const type=document.getElementById('kaynakType').value;
+  if(!title&&!url){showToast('⚠ Başlık veya link girin');return;}
+  // YouTube ise type otomatik video
+  const isYt=url.includes('youtube.com')||url.includes('youtu.be');
+  const finalType=isYt?'video':type;
+  if(editingKaynakIdx>=0){
+    kaynaklar[editingKaynakIdx]={title,url,desc,type:finalType};
+  } else {
+    kaynaklar.push({title,url,desc,type:finalType});
+  }
+  saveKaynaklar();renderKaynaklar();closeKaynakModal();
+  showToast('✦ Kaynak kaydedildi');
+}
+function editKaynak(i){if(!requireAuth())return;showKaynakModal(i);}
+function deleteKaynak(i){
+  if(!requireAuth())return;
+  if(!confirm('Bu kaynak silinecek. Emin misiniz?')) return;
+  kaynaklar.splice(i,1);
+  saveKaynaklar();renderKaynaklar();showToast('Kaynak silindi');
+}
 
 /* ── REFERANS ─────────────────────────────── */
 const REF_KEY='sozluk_ref_v2';
@@ -3484,6 +3715,7 @@ function renderHomeStats(){
 applyFont();
 loadNotes();
 loadRef();
+loadKaynaklar();
 render();
 renderHomeStats();
 renderBiliyorMusun();
