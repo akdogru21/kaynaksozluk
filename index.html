@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-[data-theme="kar"]{--bg:#ffffff;--surf:#fafafa;--surf2:#f2f2f2;--surf3:#e8e8e8;--acc:#2c5aa0;--acc-l:#4a7bc8;--acc-d:#1a3d70;--txt:#1a1a2e;--txt-d:#5a6a80;--bad:#cc2222;--brd:rgba(44,90,160,.15);--brd-s:rgba(44,90,160,.06);--pb:rgba(44,90,160,.07);--pc:#2c5aa0;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="kar"]{--bg:#f4f7fb;--surf:#ffffff;--surf2:#e8edf6;--surf3:#d8e0f0;--acc:#1a4fa0;--acc-l:#2d6dd4;--acc-d:#0e2d5e;--txt:#0f1923;--txt-d:#4a5a72;--bad:#c0392b;--brd:rgba(26,79,160,.2);--brd-s:rgba(26,79,160,.09);--pb:rgba(26,79,160,.08);--pc:#1a4fa0;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 [data-theme="krem"]{--bg:#f5f2ea;--surf:#faf8f2;--surf2:#ede9df;--surf3:#e0dbd0;--acc:#8b6914;--acc-l:#b8962e;--acc-d:#1a2744;--txt:#1a2744;--txt-d:#3d5080;--bad:#cc2222;--brd:rgba(26,39,68,.16);--brd-s:rgba(26,39,68,.07);--pb:rgba(139,105,20,.08);--pc:#8b6914;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 [data-theme="gece"]{--bg:#0a0a0a;--surf:#141414;--surf2:#1e1e1e;--surf3:#2a2a2a;--acc:#c9a84c;--acc-l:#e0c070;--acc-d:#9a7a3a;--txt:#f0ede6;--txt-d:#8a8070;--bad:#ff5555;--brd:rgba(201,168,76,.2);--brd-s:rgba(201,168,76,.08);--pb:rgba(201,168,76,.1);--pc:#c9a84c;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -26,7 +26,7 @@ header{text-align:center;padding:48px 0 30px;border-bottom:1px solid var(--brd);
 .stat-num{font-family:var(--fh);font-size:28px;color:var(--acc);line-height:1;margin-bottom:4px}
 .stat-lbl{font-size:10px;color:var(--txt-d);letter-spacing:2px;text-transform:uppercase;font-family:var(--fm)}
 .actions-row{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;align-items:center}
-.abtn{display:flex;align-items:center;gap:7px;padding:9px 18px;border:1.5px solid var(--brd);background:transparent;color:var(--txt-d);cursor:pointer;font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;transition:all .2s;border-radius:6px}
+.abtn{display:flex;align-items:center;gap:7px;padding:9px 18px;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);cursor:pointer;font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;transition:all .2s;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
 .abtn:hover{border-color:var(--acc);color:var(--acc);background:var(--pb)}
 .abtn.hl{border-color:var(--acc);color:var(--acc);background:var(--pb)}
 .abtn span{font-size:14px}
@@ -359,7 +359,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
 </style>
 </head>
-<body data-theme="krem">
+<body data-theme="kar">
 <div class="app">
   <header>
     <!-- Başlık -->
@@ -383,8 +383,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
       <!-- Tema daireleri -->
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="mini-theme" id="mt-kar" onclick="setTheme('kar',this)" title="Beyaz" style="background:linear-gradient(135deg,#ffffff 50%,#2c5aa0 50%)"></div>
-        <div class="mini-theme active" id="mt-krem" onclick="setTheme('krem',this)" title="Krem" style="background:linear-gradient(135deg,#f5f2ea 50%,#8b6914 50%)"></div>
+        <div class="mini-theme active" id="mt-kar" onclick="setTheme('kar',this)" title="Beyaz" style="background:linear-gradient(135deg,#f4f7fb 50%,#1a4fa0 50%)"></div>
+        <div class="mini-theme" id="mt-krem" onclick="setTheme('krem',this)" title="Krem" style="background:linear-gradient(135deg,#f5f2ea 50%,#8b6914 50%)"></div>
         <div class="mini-theme" id="mt-gece" onclick="setTheme('gece',this)" title="Koyu" style="background:linear-gradient(135deg,#0a0a0a 50%,#c9a84c 50%)"></div>
       </div>
       <!-- Ayırıcı -->
@@ -1448,7 +1448,7 @@ const defaults=[
 function load(){try{const r=localStorage.getItem(SKEY);if(r)return JSON.parse(r);}catch(e){}return{words:[...defaults],nextId:159,theme:'krem'};}
 function save(){try{localStorage.setItem(SKEY,JSON.stringify({words,nextId,theme:curTheme}));}catch(e){showToast('⚠ Kaydetme hatası');}}
 let{words,nextId,theme:st}=load();
-let curTheme=(st||'krem'),q='',filterLang='all',sortKey=null,sortDir=1,acIdx=-1;
+let curTheme=(st||'kar'),q='',filterLang='all',sortKey=null,sortDir=1,acIdx=-1;
 function setTheme(t,el){
   curTheme=t;
   document.body.dataset.theme=t;
@@ -1460,7 +1460,7 @@ function setTheme(t,el){
 }
 (function(){
   // bahar teması artık yok, krem'e fallback yap
-  if(curTheme==='bahar') curTheme='krem';
+  if(curTheme==='bahar') curTheme='kar';
   document.body.dataset.theme=curTheme;
   const mini=document.getElementById('mt-'+curTheme);
   if(mini) mini.classList.add('active');
@@ -2499,9 +2499,9 @@ function showSedraStatus(found, glosses, category, syWord){
     const copyId='sedra-copy-'+Date.now();
     div.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
       + '<span>✅ SEDRA doğrulandı' + catText + (glossText ? ' · <em>'+glossText+'</em>' : '') + '</span>'
-      + '<div style="display:flex;gap:5px;flex-shrink:0">'
-      + '<button id="'+copyId+'" style="background:var(--acc);color:var(--bg);border:none;border-radius:4px;padding:3px 10px;font-size:10px;font-family:var(--fm);cursor:pointer;letter-spacing:1px;">📋 Kopyala</button>'
-      + '<a href="'+sedraUrl+'" target="_blank" style="color:#3a9a5a;text-decoration:none;border:1px solid rgba(58,154,90,.4);border-radius:4px;padding:3px 10px;font-size:10px;font-family:var(--fm);" title="SEDRA sözlüğünü aç">🔗 SEDRA&#39;da Ara</a>'
+      + '<div style="display:flex;flex-direction:column;gap:5px;min-width:130px">'
+      + '<button id="'+copyId+'" style="background:var(--acc);color:var(--bg);border:none;border-radius:6px;padding:7px 14px;font-size:10px;font-family:var(--fm);cursor:pointer;letter-spacing:1px;font-weight:600;width:100%;">📋 Kopyala</button>'
+      + '<a href="'+sedraUrl+'" target="_blank" style="display:block;text-align:center;color:#fff;background:#1e6fa8;text-decoration:none;border-radius:6px;padding:7px 14px;font-size:10px;font-family:var(--fm);font-weight:600;letter-spacing:1px;" title="SEDRA sitesini aç">🔗 SEDRA da Ara</a>'
       + '</div>'
       + '</div>'
       + '<div style="margin-top:5px;font-size:10px;font-weight:600;color:#cc6600;background:rgba(204,102,0,.08);border:1px solid rgba(204,102,0,.2);border-radius:4px;padding:4px 8px;">ℹ️ Önce 📋 Kopyala butonuna basın, SEDRA açılınca Ctrl+V ile yapıştırın</div>'
