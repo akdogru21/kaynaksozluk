@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-[data-theme="gece"]{--bg:#0a0a0a;--surf:#141414;--surf2:#1e1e1e;--surf3:#2a2a2a;--acc:#c9a84c;--acc-l:#e0c070;--acc-d:#9a7a3a;--txt:#f0ede6;--txt-d:#8a8070;--bad:#ff5555;--brd:rgba(201,168,76,.2);--brd-s:rgba(201,168,76,.08);--pb:rgba(201,168,76,.1);--pc:#c9a84c;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="kar"]{--bg:#ffffff;--surf:#fafafa;--surf2:#f2f2f2;--surf3:#e8e8e8;--acc:#2c5aa0;--acc-l:#4a7bc8;--acc-d:#1a3d70;--txt:#1a1a2e;--txt-d:#5a6a80;--bad:#cc2222;--brd:rgba(44,90,160,.15);--brd-s:rgba(44,90,160,.06);--pb:rgba(44,90,160,.07);--pc:#2c5aa0;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 [data-theme="krem"]{--bg:#f5f2ea;--surf:#faf8f2;--surf2:#ede9df;--surf3:#e0dbd0;--acc:#8b6914;--acc-l:#b8962e;--acc-d:#1a2744;--txt:#1a2744;--txt-d:#3d5080;--bad:#cc2222;--brd:rgba(26,39,68,.16);--brd-s:rgba(26,39,68,.07);--pb:rgba(139,105,20,.08);--pc:#8b6914;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
-[data-theme="bahar"]{--bg:#fdf6ee;--surf:#fff9f2;--surf2:#f5ebe0;--surf3:#ead9c8;--acc:#7a3e10;--acc-l:#a05520;--acc-d:#5a2e08;--txt:#2a1505;--txt-d:#7a5a3a;--bad:#cc2222;--brd:rgba(122,62,16,.2);--brd-s:rgba(122,62,16,.08);--pb:rgba(122,62,16,.07);--pc:#7a3e10;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
+[data-theme="gece"]{--bg:#0a0a0a;--surf:#141414;--surf2:#1e1e1e;--surf3:#2a2a2a;--acc:#c9a84c;--acc-l:#e0c070;--acc-d:#9a7a3a;--txt:#f0ede6;--txt-d:#8a8070;--bad:#ff5555;--brd:rgba(201,168,76,.2);--brd-s:rgba(201,168,76,.08);--pb:rgba(201,168,76,.1);--pc:#c9a84c;--fh:'Inter',sans-serif;--fb:'Inter',sans-serif;--fm:'IBM Plex Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:1rem;font-weight:500;line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .35s,color .35s}
 .app{max-width:900px;margin:0 auto;padding:0 20px 64px}
@@ -383,9 +383,9 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
       <!-- Tema daireleri -->
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="mini-theme active" id="mt-krem" onclick="setTheme('krem',this)" title="Beyaz Ton" style="background:linear-gradient(135deg,#f5f2ea 50%,#8b6914 50%)"></div>
-        <div class="mini-theme" id="mt-bahar" onclick="setTheme('bahar',this)" title="Sıcak Ton" style="background:linear-gradient(135deg,#fdf6ee 50%,#7a3e10 50%)"></div>
-        <div class="mini-theme" id="mt-gece" onclick="setTheme('gece',this)" title="Koyu Ton" style="background:linear-gradient(135deg,#0a0a0a 50%,#c9a84c 50%)"></div>
+        <div class="mini-theme" id="mt-kar" onclick="setTheme('kar',this)" title="Beyaz" style="background:linear-gradient(135deg,#ffffff 50%,#2c5aa0 50%)"></div>
+        <div class="mini-theme active" id="mt-krem" onclick="setTheme('krem',this)" title="Krem" style="background:linear-gradient(135deg,#f5f2ea 50%,#8b6914 50%)"></div>
+        <div class="mini-theme" id="mt-gece" onclick="setTheme('gece',this)" title="Koyu" style="background:linear-gradient(135deg,#0a0a0a 50%,#c9a84c 50%)"></div>
       </div>
       <!-- Ayırıcı -->
       <div style="width:1px;height:20px;background:var(--brd)"></div>
@@ -416,7 +416,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <button class="tab" onclick="switchTab('sozluk',this)">📖 Sözlük</button>
     <button class="tab" onclick="switchTab('flashcard',this)">🎴 Kelime Öğren</button>
     <button class="tab" onclick="switchTab('cumle',this)">✏️ Cümle Kur</button>
-    <button class="tab" onclick="switchTab('notlar',this)">📝 Notlar</button>
+    <button class="tab" onclick="switchTab('notlar',this)">📋 Kurallar</button>
     <button class="tab" onclick="switchTab('kaynaklar',this)">🔖 Kaynaklar</button>
   </div>
 
@@ -464,8 +464,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         </div>
 
         <div class="home-card" onclick="switchTab('notlar',this)">
-          <div class="home-card-icon">📝</div>
-          <div class="home-card-title">Notlar</div>
+          <div class="home-card-icon">📋</div>
+          <div class="home-card-title">Kurallar</div>
           <div class="home-card-desc">40+ dilbilgisi kuralı. Fiil çekimleri, isim halleri, zamir kuralları ve daha fazlası.</div>
         </div>
 
@@ -572,7 +572,10 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
           </div>
         </div>
         <div class="igroup"><label class="ilabel">İngilizce</label><input type="text" class="winput" id="inp_en" placeholder="English word..." oninput="scheduleAutoFetchEn()"></div>
-        <div class="igroup">
+      </div>
+      <!-- Tür seçimi + Ekle butonu yan yana -->
+      <div style="display:flex;gap:10px;align-items:flex-end;margin-top:12px;flex-wrap:wrap">
+        <div class="igroup" style="flex:1;min-width:160px;margin-bottom:0">
           <label class="ilabel">Kelime Türü</label>
           <select class="wsel" id="inp_type">
             <option value="">— Seçin —</option>
@@ -590,13 +593,11 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
             <option value="soru">Soru (Question)</option>
           </select>
         </div>
+        <button class="btn btn-p" onclick="addWord()" style="flex:1;min-width:140px;padding:11px 20px;font-size:10px;letter-spacing:2px;border-radius:8px;white-space:nowrap;">✦ Kelimeyi Ekle</button>
       </div>
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--brd-s)">
-        <button class="btn btn-p" onclick="addWord()" style="width:100%;padding:14px;font-size:11px;letter-spacing:3px;border-radius:8px;">✦ Kelimeyi Ekle</button>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn btn-s" onclick="clearAddForm()" style="flex:1">⊘ Temizle</button>
-          <button class="btn btn-s" onclick="toggleAdd()" style="flex:1">İptal</button>
-        </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-s" onclick="clearAddForm()" style="flex:1;font-size:9px;padding:8px;opacity:.8">⊘ Temizle</button>
+        <button class="btn btn-s" onclick="toggleAdd()" style="flex:1;font-size:9px;padding:8px;opacity:.8">✕ İptal</button>
       </div>
     </div>
   </div>
@@ -1458,6 +1459,8 @@ function setTheme(t,el){
   save();
 }
 (function(){
+  // bahar teması artık yok, krem'e fallback yap
+  if(curTheme==='bahar') curTheme='krem';
   document.body.dataset.theme=curTheme;
   const mini=document.getElementById('mt-'+curTheme);
   if(mini) mini.classList.add('active');
