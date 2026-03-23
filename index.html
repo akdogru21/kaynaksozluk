@@ -401,8 +401,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <button class="icon-nav-btn" id="inb-istatistik" onclick="switchToPage('istatistik',this)" title="İstatistik">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 16V12M12 16V8M17 16V11"/></svg>
         </button>
-        <button class="icon-nav-btn" id="inb-referans" onclick="switchTab('referans',this)" title="Referans">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <button class="icon-nav-btn" id="inb-flashcard" onclick="switchToPage('flashcard',this)" title="Flashcard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
         </button>
       </div>
     </div>
@@ -413,9 +413,9 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('anasayfa',this)">🏠 Ana Sayfa</button>
     <button class="tab" onclick="switchTab('sozluk',this)">📖 Sözlük</button>
-    <button class="tab" onclick="switchTab('flashcard',this)">🃏 Oyun Kartı</button>
     <button class="tab" onclick="switchTab('cumle',this)">✏️ Cümle Kur</button>
     <button class="tab" onclick="switchTab('notlar',this)">📝 Notlar</button>
+    <button class="tab" onclick="switchTab('referans',this)">📚 Referans</button>
   </div>
 
   <!-- ANA SAYFA PANELİ -->
@@ -461,15 +461,15 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
           <div class="home-card-desc">40+ dilbilgisi kuralı. Fiil çekimleri, isim halleri, zamir kuralları ve daha fazlası.</div>
         </div>
 
-        <div class="home-card" onclick="switchTab('referans',document.getElementById('inb-referans'))">
+        <div class="home-card" onclick="switchTab('referans',document.querySelector('.tab:nth-child(5)'))">
           <div class="home-card-icon">📚</div>
           <div class="home-card-title">Referans</div>
           <div class="home-card-desc">Zamirler, sayılar, günler, aylar, bağlaçlar. Üç dilli hızlı başvuru tabloları.</div>
         </div>
 
-        <div class="home-card" onclick="switchTab('flashcard',this)">
+        <div class="home-card" onclick="switchToPage('flashcard',document.getElementById('inb-flashcard'))">
           <div class="home-card-icon">🃏</div>
-          <div class="home-card-title">Oyun Kartı</div>
+          <div class="home-card-title">Flashcard</div>
           <div class="home-card-desc">Kelime kartlarıyla test yap. Dil ve tür seçerek çalış, başarı oranını gör.</div>
         </div>
 
@@ -589,10 +589,12 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
           </select>
         </div>
       </div>
-      <div class="brow">
-        <button class="btn btn-p" onclick="addWord()">Ekle</button>
-        <button class="btn btn-s" onclick="clearAddForm()">⊘ Temizle</button>
-        <button class="btn btn-s" onclick="toggleAdd()">İptal</button>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--brd-s)">
+        <button class="btn btn-p" onclick="addWord()" style="width:100%;padding:14px;font-size:11px;letter-spacing:3px;border-radius:8px;">✦ Kelimeyi Ekle</button>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-s" onclick="clearAddForm()" style="flex:1">⊘ Temizle</button>
+          <button class="btn btn-s" onclick="toggleAdd()" style="flex:1">İptal</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2004,6 +2006,7 @@ function loadNotes(){
   }
   noteNextId=notes.reduce((m,n)=>Math.max(m,n.id||0),0)+1;
   renderNotes();
+  renderBiliyorMusun();
 }
 function saveNotes(){try{localStorage.setItem(NKEY,JSON.stringify(notes));}catch(e){}}
 
@@ -2433,10 +2436,10 @@ function showSedraStatus(found, glosses, category, syWord){
     div.style.color = '#3a9a5a';
     const glossText = glosses && glosses.length ? glosses.slice(0,3).join(', ') : '';
     const catText = category ? ' · '+category : '';
-    const sedraUrl = 'https://sedra.bethmardutho.org/';
+    const sedraUrl = 'https://sedra.bethmardutho.org/?search='+encodeURIComponent(syWord||'');
     div.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
       + '<span>✅ SEDRA doğrulandı' + catText + (glossText ? ' · <em>'+glossText+'</em>' : '') + '</span>'
-      + '<a href="'+sedraUrl+'" target="_blank" onclick="navigator.clipboard.writeText(\"'+syWord+'\");" style="color:#3a9a5a;text-decoration:none;white-space:nowrap;border:1px solid rgba(58,154,90,.4);border-radius:4px;padding:2px 7px;font-size:10px;flex-shrink:0;" title="SEDRA&#39;da ara (kelime panoya kopyalanır)">🔗 SEDRA&#39;da gör ✂</a>'
+      + '<a href="'+sedraUrl+'" target="_blank" onclick="try{navigator.clipboard.writeText('"+(syWord||'')+"');}catch(e){}" style="color:#3a9a5a;text-decoration:none;white-space:nowrap;border:1px solid rgba(58,154,90,.4);border-radius:4px;padding:2px 7px;font-size:10px;flex-shrink:0;" title="Kelime panoya kopyalanır">🔗 SEDRA&#39;da gör ✂</a>'
       + '</div>'
       + '<div style="margin-top:4px;font-size:10px;opacity:.7;">Kaynak: Beth Mardutho · SEDRA IV · Margoliouth / Payne Smith / Brock-Kiraz sözlükleri</div>';
   } else {
@@ -2487,11 +2490,12 @@ const DEFAULT_REF=[{"id": 1, "title": "🔤 Zamirler", "rows": [{"tr": "Ben", "s
 let refData=[], refNextId=10;
 
 function loadRef(){
-  try{const r=localStorage.getItem(REF_KEY);if(r){refData=JSON.parse(r);refNextId=Math.max(...refData.map(s=>s.id))+1;renderRef();return;}}catch(e){}
+  try{const r=localStorage.getItem(REF_KEY);if(r){refData=JSON.parse(r);refNextId=Math.max(...refData.map(s=>s.id))+1;renderRef();renderGunKelimeCumle();return;}}catch(e){}
   refData=JSON.parse(JSON.stringify(DEFAULT_REF));
   refNextId=refData.length+1;
   saveRef();
   renderRef();
+  renderGunKelimeCumle();
 }
 function saveRef(){try{localStorage.setItem(REF_KEY,JSON.stringify(refData));}catch(e){}}
 
