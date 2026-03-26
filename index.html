@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -1872,7 +1871,8 @@ function sortT(key){
 }
 function getFiltered(){
   let list=[...words];
-  if(showOnlyEksik) list=list.filter(function(w){return !w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';});
+  if(showOnlyEksik) list=list.filter(function(w){return !w.imgUrl&&(!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='');});
+  if(showOnlyFavs) list=list.filter(function(w){return favWords.has(w.id);});
   if(q){const ql=q.toLowerCase();list=list.filter(w=>{
     if(filterLang==='tr')return(w.tr||'').toLowerCase().includes(ql);
     if(filterLang==='sy')return(w.sy||'').toLowerCase().includes(ql);
@@ -1928,7 +1928,7 @@ function eksikTamamla(el){
     el.style.fontWeight = '700';
     el.textContent = '⚠ Eksik Tamamla ✕';
     var eksikler = words.filter(function(w){
-      return !w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
+      return !w.imgUrl&&(!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='');
     });
     if(eksikler.length === 0){
       showToast('✓ Tüm kelimelerin çevirisi tam!');
@@ -1967,7 +1967,7 @@ function render(){
   tbody.innerHTML=f.map(function(w,i){
     const sy=w.sy||'';
     const isFav=favWords.has(w.id);
-    const isEksik=!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
+    const isEksik=!w.imgUrl&&(!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='');
     return '<tr'+(isEksik?' style="background:rgba(184,150,46,.1);border-left:3px solid #b8962e"':'')+'>'
       +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+'</td>'
       +'<td><div style="display:flex;align-items:center;gap:8px">'+(w.imgUrl?'<img src="'+w.imgUrl+'" style="width:30px;height:30px;object-fit:cover;border-radius:5px;border:1px solid var(--brd);flex-shrink:0" loading="lazy">':'')+'<strong>'+(hl(w.tr,q)||'—')+'</strong></div></td>'
