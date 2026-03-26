@@ -827,9 +827,15 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <button class="abtn hl edit-only" onclick="showKaynakModal()" style="display:none"><span>＋</span>Kaynak Ekle</button>
       </div>
       <div style="padding:16px 20px">
-        <p style="font-size:0.9rem;color:var(--txt-d);line-height:1.8;margin-bottom:16px">Süryanice öğrenimine yardımcı dosyalar, videolar ve bağlantılar.</p>
+        <p style="font-size:0.9rem;color:var(--txt-d);line-height:1.8;margin-bottom:14px">Süryanice öğrenimine yardımcı dosyalar, videolar ve bağlantılar.</p>
+        <div id="kaynakFilterBar" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">
+          <button class="fbtn active" id="kfilt-video" onclick="setKaynakFilter('video',this)">▶ Video</button>
+          <button class="fbtn" id="kfilt-link" onclick="setKaynakFilter('link',this)">🔗 Bağlantı</button>
+          <button class="fbtn" id="kfilt-dosya" onclick="setKaynakFilter('dosya',this)">📄 Dosya</button>
+          <button class="fbtn" id="kfilt-hepsi" onclick="setKaynakFilter('hepsi',this)">Tümü</button>
+        </div>
         <div id="kaynakList"></div>
-        <div id="kaynakEmpty" style="text-align:center;padding:32px;color:var(--txt-d);opacity:.5;font-style:italic">Henüz kaynak eklenmemiş.</div>
+        <div id="kaynakEmpty" style="text-align:center;padding:32px;color:var(--txt-d);opacity:.5;font-style:italic">Bu türde kaynak bulunmuyor.</div>
       </div>
     </div>
   </div><!-- /tab-kaynaklar -->
@@ -2554,17 +2560,34 @@ async function loadKaynaklar(){
 }
 function saveKaynaklar(){/* Supabase ile çalışıyor, bu fonksiyon artık kullanılmıyor */}
 
+let activeKaynakFilter='video';
+function setKaynakFilter(type,btn){
+  activeKaynakFilter=type;
+  document.querySelectorAll('#kaynakFilterBar .fbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderKaynaklar();
+}
 function renderKaynaklar(){
   const list=document.getElementById('kaynakList');
   const empty=document.getElementById('kaynakEmpty');
   if(!list) return;
-  if(!kaynaklar.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  // Filtreye göre göster
+  const filtered=kaynaklar.filter(k=>{
+    if(activeKaynakFilter==='hepsi') return true;
+    if(activeKaynakFilter==='video'){
+      const isYt=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
+      return isYt||k.type==='video';
+    }
+    return k.type===activeKaynakFilter;
+  });
+  if(!filtered.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
   if(empty)empty.style.display='none';
-  list.innerHTML=kaynaklar.map((k,i)=>{
+  list.innerHTML=filtered.map((k)=>{
+    const i=kaynaklar.indexOf(k);
     const isYoutube=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
     const isVideo=isYoutube||k.type==='video';
-    const icon=isVideo?'▶':'📄';
-    const typeLabel=isVideo?'Video':'Dosya/Link';
+    const icon=isVideo?'▶':k.type==='dosya'?'📄':'🔗';
+    const typeLabel=isVideo?'Video':k.type==='dosya'?'Dosya':'Bağlantı';
     // YouTube embed ID
     let embedHtml='';
     if(isYoutube&&k.url){
