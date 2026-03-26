@@ -357,6 +357,40 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 @media(max-width:800px){}
 @media(max-width:480px){}
 
+/* ── GÖRSEL EŞLEŞTİRME ──────────────────────── */
+#imgMatchModal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);padding:16px}
+#imgMatchModal.open{display:flex}
+.imgm-box{background:var(--surf);border:1.5px solid var(--brd);border-radius:14px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.4);animation:imgmIn .22s cubic-bezier(.2,.8,.3,1)}
+@keyframes imgmIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.imgm-hdr{padding:18px 22px 14px;border-bottom:1px solid var(--brd-s);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.imgm-label{font-family:var(--fm);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:5px}
+.imgm-word{font-size:1.2rem;font-weight:700;color:var(--txt)}
+.imgm-word-en{font-family:var(--fm);font-size:11px;color:var(--acc-d);margin-top:2px;letter-spacing:1px}
+.imgm-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--txt-d);padding:4px;line-height:1;flex-shrink:0;transition:color .15s;margin-top:2px}
+.imgm-close:hover{color:var(--bad)}
+.imgm-body{padding:18px 22px}
+.imgm-hint{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:14px;opacity:.7}
+.imgm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px}
+.imgm-card{border:2.5px solid var(--brd);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;aspect-ratio:1;background:var(--surf2)}
+.imgm-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.15)}
+.imgm-card.selected{border-color:var(--acc);box-shadow:0 0 0 3px var(--pb)}
+.imgm-card img{width:100%;height:100%;object-fit:cover;display:block}
+.imgm-card .imgm-check{position:absolute;top:7px;right:7px;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--bg);display:none;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.imgm-card.selected .imgm-check{display:flex}
+.imgm-loading{text-align:center;padding:32px 20px;color:var(--txt-d)}
+.imgm-spinner{width:28px;height:28px;border:2.5px solid var(--brd);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.imgm-err{text-align:center;padding:24px 20px;color:var(--txt-d);font-size:.9rem}
+.imgm-footer{display:flex;gap:10px;padding:0 22px 20px;flex-wrap:wrap}
+.imgm-skip{flex:1;background:none;border:1.5px solid var(--brd);color:var(--txt-d);padding:10px 16px;cursor:pointer;font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;border-radius:7px;transition:all .2s}
+.imgm-skip:hover{border-color:var(--acc-d);color:var(--txt)}
+.imgm-confirm{flex:2;background:var(--acc);border:none;color:var(--bg);padding:11px 20px;cursor:pointer;font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;border-radius:7px;font-weight:700;transition:filter .2s,opacity .2s;opacity:.35;pointer-events:none}
+.imgm-confirm.ready{opacity:1;pointer-events:auto}
+.imgm-confirm:hover{filter:brightness(1.1)}
+.imgm-credit{font-family:var(--fm);font-size:8px;color:var(--txt-d);text-align:center;padding:0 22px 12px;opacity:.45}
+.imgm-credit a{color:inherit;text-decoration:underline}
+.imgm-retry{font-family:var(--fm);font-size:9px;letter-spacing:1px;background:none;border:1.5px solid var(--brd);color:var(--txt-d);padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:10px;transition:all .2s}
+.imgm-retry:hover{border-color:var(--acc);color:var(--acc)}
 </style>
 </head>
 <body data-theme="kar">
@@ -541,6 +575,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <input type="file" id="imp" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)">
     <button class="abtn danger edit-only" onclick="clearAll()" style="display:none"><span>⊘</span>Tümünü Sil</button>
     <button class="abtn" onclick="showApiKeyModal()" style="margin-left:4px" title="Claude API Key"><span>🔑</span>API Key</button>
+    <button class="abtn" onclick="showUnsplashKeyModal()" title="Unsplash görsel ayarı"><span>🖼</span>Görsel</button>
   </div>
 
   <div class="add-wrap" id="addWrap">
@@ -1163,6 +1198,61 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     </div>
   </div>
 </div>
+<!-- Görsel Eşleştirme Modalı -->
+<div id="imgMatchModal">
+  <div class="imgm-box">
+    <div class="imgm-hdr">
+      <div>
+        <div class="imgm-label">✦ Görsel Eşleştirme</div>
+        <div class="imgm-word" id="imgm-tr-label"></div>
+        <div class="imgm-word-en" id="imgm-en-label"></div>
+      </div>
+      <button class="imgm-close" onclick="imgModalSkip()">✕</button>
+    </div>
+    <div class="imgm-body">
+      <div class="imgm-hint">İngilizce kelimeyle aranan görseller — en uygununu seçin</div>
+      <div id="imgm-loading" class="imgm-loading">
+        <div class="imgm-spinner"></div>
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase">Görseller yükleniyor...</div>
+      </div>
+      <div class="imgm-grid" id="imgm-grid" style="display:none"></div>
+      <div id="imgm-err" class="imgm-err" style="display:none">
+        <div style="font-size:2rem;opacity:.35;margin-bottom:8px">🖼</div>
+        <div>Görsel yüklenemedi.</div>
+        <button class="imgm-retry" onclick="imgModalRetry()">↻ Tekrar Dene</button>
+      </div>
+    </div>
+    <div class="imgm-footer">
+      <button class="imgm-skip" onclick="imgModalSkip()">Görselsiz Kaydet</button>
+      <button class="imgm-confirm" id="imgm-confirm" onclick="imgModalConfirm()">✓ Bu Görselle Kaydet</button>
+    </div>
+    <div class="imgm-credit">Görseller <a href="https://unsplash.com" target="_blank">Unsplash</a> kaynaklıdır</div>
+  </div>
+</div>
+
+<!-- Unsplash Key Modalı -->
+<div id="unsplashKeyModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);align-items:center;justify-content:center">
+  <div style="background:var(--surf);border:1.5px solid var(--acc);border-radius:12px;padding:28px;width:min(440px,90vw)">
+    <div style="font-family:var(--fh);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:6px">🖼 Görsel Ayarı</div>
+    <p style="font-size:13px;color:var(--txt-d);margin-bottom:4px;line-height:1.6">Kelime eklenirken <strong>Unsplash</strong>'tan otomatik görsel önerisi gösterilir.</p>
+    <p style="font-size:12px;color:var(--txt-d);margin-bottom:16px;line-height:1.6">Key gerektirmez — <code style="font-family:var(--fm);background:var(--surf2);padding:1px 6px;border-radius:4px">source.unsplash.com</code> endpoint'i kullanılır.</p>
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surf2);border-radius:8px;margin-bottom:18px;border:1px solid var(--brd-s)">
+      <span style="font-size:20px">🖼</span>
+      <div>
+        <div style="font-family:var(--fm);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--acc-d);margin-bottom:2px">Görsel Önizleme</div>
+        <div style="font-size:12px;color:var(--txt-d)">Kelime eklerken İngilizce çeviriye göre 6 görsel seçeneği sunulur</div>
+      </div>
+      <label style="margin-left:auto;position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+        <input type="checkbox" id="imgToggle" onchange="toggleImgFeature(this)" style="opacity:0;width:0;height:0">
+        <span id="imgToggleSlider" style="position:absolute;cursor:pointer;inset:0;background:var(--brd);border-radius:20px;transition:.3s"></span>
+      </label>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-p" onclick="closeUnsplashKeyModal()">Tamam</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 const SKEY='sozluk_v7';
@@ -1488,14 +1578,13 @@ function addWord(){if(!requireAuth())return;
   const en=document.getElementById('inp_en').value.trim();
   const type=document.getElementById('inp_type').value;
   if(!tr&&!sy&&!en){showToast('⚠ En az bir alan doldurun');return;}
-  const newWord={id:nextId++,tr,sy,en,type,date:today};
-  words.push(newWord);save();
-  if(useCloud){sbAddWord(newWord).then(res=>{if(res&&res[0]){newWord.sbId=res[0].id;save();}}).catch(e=>console.error(e));}
-  ['inp_tr','inp_sy','inp_tr2','inp_en'].forEach(i=>document.getElementById(i).value='');
-  const sd=document.getElementById('sedra-status'); if(sd) sd.remove();
-  document.getElementById('inp_type').value='';
-  document.getElementById('addWrap').classList.remove('open');
-  render();showToast('✦ Kelime eklendi');
+  _imgPending={tr,sy,en,type};
+  const imgEnabled=localStorage.getItem('sozluk_img_enabled')!=='false';
+  if(imgEnabled&&(en||tr)){
+    openImgModal(tr,en||tr);
+  } else {
+    _commitWord(null);
+  }
 }
 let fontSize=parseInt(localStorage.getItem('sozluk_fs')||'100');
 const BASE_SIZE=16; // px
@@ -1666,7 +1755,7 @@ function render(){
     const isEksik=!w.tr||!w.sy||!w.en||w.tr.trim()===''||w.sy.trim()===''||w.en.trim()==='';
     return '<tr'+(isEksik?' style="background:rgba(184,150,46,.1);border-left:3px solid #b8962e"':'')+'>'
       +'<td style="width:32px;color:var(--txt-d);font-family:var(--fm);font-size:11px">'+(i+1)+'</td>'
-      +'<td><strong>'+(hl(w.tr,q)||'—')+'</strong></td>'
+      +'<td><div style="display:flex;align-items:center;gap:8px">'+(w.imgUrl?'<img src="'+w.imgUrl+'" style="width:30px;height:30px;object-fit:cover;border-radius:5px;border:1px solid var(--brd);flex-shrink:0" loading="lazy">':'')+'<strong>'+(hl(w.tr,q)||'—')+'</strong></div></td>'
       +'<td class="tsy">'+(hl(w.sy,q)||'—')+'</td>'
       +'<td class="ten">'+(hl(w.en,q)||'—')+'</td>'
       +'<td>'+(w.type?'<span class="tpill">'+w.type+'</span>':'')+'</td>'
@@ -3786,6 +3875,137 @@ function renderHomeStats(){
   set('hs-last-en', lastW?.en||'—');
 
 }
+
+/* ── GÖRSEL EŞLEŞTİRME SİSTEMİ ─────────────── */
+let _imgPending=null;
+let _imgSelected=null; // {url, sig}
+
+// İngilizce kelimeyi Unsplash için temizle (to eat → eat, to write → write)
+function _imgQuery(en){
+  return (en||'').replace(/^to\s+/i,'').split('/')[0].trim();
+}
+
+function _commitWord(imgUrl){
+  if(!_imgPending) return;
+  const w=_imgPending;
+  const newWord={id:nextId++,tr:w.tr,sy:w.sy,en:w.en,type:w.type,date:today};
+  if(imgUrl) newWord.imgUrl=imgUrl;
+  words.push(newWord); save();
+  if(useCloud){sbAddWord(newWord).then(res=>{if(res&&res[0]){newWord.sbId=res[0].id;save();}}).catch(e=>console.error(e));}
+  ['inp_tr','inp_sy','inp_tr2','inp_en'].forEach(i=>document.getElementById(i).value='');
+  const sd=document.getElementById('sedra-status'); if(sd) sd.remove();
+  document.getElementById('inp_type').value='';
+  document.getElementById('addWrap').classList.remove('open');
+  _imgPending=null; _imgSelected=null;
+  render(); renderHomeStats();
+  showToast(imgUrl?'✦ Kelime ve görsel eklendi':'✦ Kelime eklendi');
+}
+
+function openImgModal(tr, en){
+  _imgSelected=null;
+  document.getElementById('imgm-tr-label').textContent=tr||'';
+  const q=_imgQuery(en);
+  document.getElementById('imgm-en-label').textContent=q?'🔍 "'+q+'" olarak aranıyor':'';
+  document.getElementById('imgm-confirm').classList.remove('ready');
+  document.getElementById('imgm-grid').style.display='none';
+  document.getElementById('imgm-grid').innerHTML='';
+  document.getElementById('imgm-err').style.display='none';
+  document.getElementById('imgm-loading').style.display='block';
+  document.getElementById('imgMatchModal').classList.add('open');
+  _loadImgGrid(q||tr);
+}
+
+function _loadImgGrid(q){
+  const grid=document.getElementById('imgm-grid');
+  const loading=document.getElementById('imgm-loading');
+  const err=document.getElementById('imgm-err');
+  const encoded=encodeURIComponent(q);
+  let loaded=0, failed=0;
+  const total=6;
+  grid.innerHTML='';
+
+  for(let sig=1;sig<=total;sig++){
+    const url=`https://source.unsplash.com/300x300/?${encoded}&sig=${sig}`;
+    const card=document.createElement('div');
+    card.className='imgm-card';
+    const img=document.createElement('img');
+    img.loading='lazy';
+    img.alt=q;
+    const check=document.createElement('div');
+    check.className='imgm-check';
+    check.textContent='✓';
+    card.appendChild(img);
+    card.appendChild(check);
+    const sigVal=sig;
+    card.onclick=function(){
+      document.querySelectorAll('.imgm-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      _imgSelected={url:img.src, sig:sigVal};
+      document.getElementById('imgm-confirm').classList.add('ready');
+    };
+    img.onload=function(){
+      loaded++;
+      if(loaded===1){loading.style.display='none'; grid.style.display='grid';}
+    };
+    img.onerror=function(){
+      failed++;
+      card.style.opacity='.3';
+      card.style.pointerEvents='none';
+      if(loaded===0&&failed===total){loading.style.display='none'; err.style.display='block';}
+    };
+    img.src=url;
+    grid.appendChild(card);
+  }
+}
+
+function imgModalRetry(){
+  if(!_imgPending) return;
+  const q=_imgQuery(_imgPending.en||_imgPending.tr);
+  document.getElementById('imgm-err').style.display='none';
+  document.getElementById('imgm-loading').style.display='block';
+  _loadImgGrid(q);
+}
+
+function imgModalConfirm(){
+  if(!_imgSelected){showToast('⚠ Önce bir görsel seçin');return;}
+  document.getElementById('imgMatchModal').classList.remove('open');
+  _commitWord(_imgSelected.url);
+}
+
+function imgModalSkip(){
+  document.getElementById('imgMatchModal').classList.remove('open');
+  _commitWord(null);
+}
+
+/* Unsplash ayar modalı */
+function showUnsplashKeyModal(){
+  const modal=document.getElementById('unsplashKeyModal');
+  modal.style.display='flex';
+  const enabled=localStorage.getItem('sozluk_img_enabled')!=='false';
+  const sl=document.getElementById('imgToggleSlider');
+  const cb=document.getElementById('imgToggle');
+  cb.checked=enabled;
+  sl.style.background=enabled?'var(--acc)':'var(--brd)';
+  if(enabled) sl.style.setProperty('--before-x','18px');
+}
+function closeUnsplashKeyModal(){
+  document.getElementById('unsplashKeyModal').style.display='none';
+}
+function toggleImgFeature(cb){
+  localStorage.setItem('sozluk_img_enabled',cb.checked?'true':'false');
+  const sl=document.getElementById('imgToggleSlider');
+  sl.style.background=cb.checked?'var(--acc)':'var(--brd)';
+  showToast(cb.checked?'🖼 Görsel önizleme açık':'🖼 Görsel önizleme kapalı');
+}
+document.getElementById('unsplashKeyModal').addEventListener('click',function(e){if(e.target===this)closeUnsplashKeyModal();});
+document.getElementById('imgMatchModal').addEventListener('click',function(e){if(e.target===this)imgModalSkip();});
+
+/* Toggle slider CSS trick */
+(function(){
+  const style=document.createElement('style');
+  style.textContent='#imgToggleSlider::before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;transform:translateX(0)} input:checked + #imgToggleSlider::before{transform:translateX(18px)}';
+  document.head.appendChild(style);
+})();
 
 /* ── BAŞLANGIÇ ──────────────────────────────── */
 applyFont();
