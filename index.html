@@ -560,16 +560,14 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         </div>
         <div class="igroup">
           <label class="ilabel">Transliterasyon</label>
-          <div style="position:relative">
-            <input type="text" class="winput" id="inp_tr2" placeholder="örn: ʾEdta, ʕBda ..." style="padding-right:165px">
-            <div class="char-btns" id="charBtns">
-              <button type="button" class="chbtn" onclick="insChar('ʾ')" title="Alaf (ʾ)">ʾ</button>
-              <button type="button" class="chbtn" onclick="insChar('˕')" title="Ayn (ʕ)">˕</button>
-              <button type="button" class="chbtn" onclick="insChar('ḥ')" title="Het">ḥ</button>
-              <button type="button" class="chbtn" onclick="insChar('ṭ')" title="Tet">ṭ</button>
-              <button type="button" class="chbtn" onclick="insChar('ṣ')" title="Tsade">ṣ</button>
-              <button type="button" class="chbtn" onclick="insChar('š')" title="Shin">š</button>
-            </div>
+          <input type="text" class="winput" id="inp_tr2" placeholder="örn: ʾEdta, ʕBda ...">
+          <div id="charBtns" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+            <button type="button" class="chbtn" onclick="insChar('ʾ')" title="Alaf (ʾ)">ʾ</button>
+            <button type="button" class="chbtn" onclick="insChar('˕')" title="Ayn (ʕ)">˕</button>
+            <button type="button" class="chbtn" onclick="insChar('ḥ')" title="Het">ḥ</button>
+            <button type="button" class="chbtn" onclick="insChar('ṭ')" title="Tet">ṭ</button>
+            <button type="button" class="chbtn" onclick="insChar('ṣ')" title="Tsade">ṣ</button>
+            <button type="button" class="chbtn" onclick="insChar('š')" title="Shin">š</button>
           </div>
         </div>
         <div class="igroup"><label class="ilabel">İngilizce</label><input type="text" class="winput" id="inp_en" placeholder="English word..." oninput="scheduleAutoFetchEn()"></div>
@@ -1024,16 +1022,14 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       </div>
       <div class="igroup">
         <label class="ilabel">Transliterasyon</label>
-        <div style="position:relative">
-          <input type="text" class="winput" id="edit_tr2" placeholder="örn: ʾEdta, ʕBda ..." style="padding-right:165px">
-          <div class="char-btns">
-            <button type="button" class="chbtn" onclick="insCharEdit('ʾ')" title="Alaf (ʾ)">ʾ</button>
-            <button type="button" class="chbtn" onclick="insCharEdit('˕')" title="Ayn (ʕ)">˕</button>
-            <button type="button" class="chbtn" onclick="insCharEdit('ḥ')" title="Het">ḥ</button>
-            <button type="button" class="chbtn" onclick="insCharEdit('ṭ')" title="Tet">ṭ</button>
-            <button type="button" class="chbtn" onclick="insCharEdit('ṣ')" title="Tsade">ṣ</button>
-            <button type="button" class="chbtn" onclick="insCharEdit('š')" title="Shin">š</button>
-          </div>
+        <input type="text" class="winput" id="edit_tr2" placeholder="örn: ʾEdta, ʕBda ...">
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+          <button type="button" class="chbtn" onclick="insCharEdit('ʾ')" title="Alaf (ʾ)">ʾ</button>
+          <button type="button" class="chbtn" onclick="insCharEdit('˕')" title="Ayn (ʕ)">˕</button>
+          <button type="button" class="chbtn" onclick="insCharEdit('ḥ')" title="Het">ḥ</button>
+          <button type="button" class="chbtn" onclick="insCharEdit('ṭ')" title="Tet">ṭ</button>
+          <button type="button" class="chbtn" onclick="insCharEdit('ṣ')" title="Tsade">ṣ</button>
+          <button type="button" class="chbtn" onclick="insCharEdit('š')" title="Shin">š</button>
         </div>
       </div>
       <div class="igroup"><label class="ilabel">İngilizce</label><input type="text" class="winput" id="edit_en" placeholder="English word..."></div>
