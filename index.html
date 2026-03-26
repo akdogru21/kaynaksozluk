@@ -919,6 +919,14 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       <div class="tbl-hdr" style=""><span class="tbl-ttl">Kart Ayarları</span></div>
       <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;align-items:flex-end">
         <div>
+          <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:6px">Mod</div>
+          <select class="wsel" id="fcModeSelect" onchange="onFcModeSelectChange()" style="min-width:160px">
+            <option value="normal">📖 Normal Mod</option>
+            <option value="img_sy">🖼 Görselden → Süryanice</option>
+            <option value="img_en">🖼 Görselden → İngilizce</option>
+          </select>
+        </div>
+        <div id="fcQuestionLangWrap">
           <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:6px">Soru Dili</div>
           <select class="wsel" id="fcQuestionLang" style="min-width:130px">
             <option value="tr">Türkçe</option>
@@ -926,7 +934,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
             <option value="en">İngilizce</option>
           </select>
         </div>
-        <div>
+        <div id="fcAnswerLangWrap">
           <div style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:6px">Cevap Dili</div>
           <select class="wsel" id="fcAnswerLang" style="min-width:130px">
             <option value="sy">Süryanice</option>
@@ -948,6 +956,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <button class="abtn hl" id="fcModeBtn" onclick="toggleFcMode()"><span>🎯</span>Sınav Modu: Kapalı</button>
         <button class="abtn hl" onclick="initFlashcard()"><span>▶</span>Başla</button>
       </div>
+      <!-- Görsel mod uyarısı -->
+      <div id="fcImgWarning" style="display:none;margin-top:10px;padding:10px 14px;background:var(--pb);border-radius:8px;font-family:var(--fm);font-size:11px;color:var(--acc-d);letter-spacing:1px"></div>
     </div>
 
     <!-- Kart Alanı -->
@@ -966,6 +976,10 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
       <!-- Kart -->
       <div id="fcCard" onclick="flipCard()" style="cursor:pointer;min-height:240px;max-width:520px;margin:0 auto 16px;background:var(--surf);border:2px solid var(--brd);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;transition:all .3s;user-select:none">
+        <!-- Görsel mod resmi -->
+        <div id="fcImgWrap" style="display:none;width:100%;margin-bottom:20px">
+          <img id="fcImg" src="" alt="" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid var(--brd)">
+        </div>
         <div id="fcFrontLabel" style="font-family:var(--fm);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:16px"></div>
         <div id="fcFrontText" style="font-size:1.8rem;font-weight:600;color:var(--txt);margin-bottom:8px"></div>
         <div id="fcHint" style="font-family:var(--fm);font-size:0.75rem;color:var(--txt-d);opacity:.5;margin-top:12px">👆 Cevabı görmek için tıkla</div>
@@ -3368,6 +3382,27 @@ function renderIstatistik(){
 /* ── FLASHCARD ───────────────────────────────── */
 let fcWords=[], fcIndex=0, fcFront='tr', fcFlipped=false;
 let fcCorrectCount=0, fcWrongCount=0;
+let fcImgMode=false; // görsel mod aktif mi
+let fcImgTarget='sy'; // görsel modda hedef dil
+
+function onFcModeSelectChange(){
+  const v=document.getElementById('fcModeSelect').value;
+  const qWrap=document.getElementById('fcQuestionLangWrap');
+  const aWrap=document.getElementById('fcAnswerLangWrap');
+  const warn=document.getElementById('fcImgWarning');
+  if(v==='normal'){
+    fcImgMode=false;
+    qWrap.style.display=''; aWrap.style.display='';
+    warn.style.display='none';
+  } else {
+    fcImgMode=true;
+    fcImgTarget=v==='img_sy'?'sy':'en';
+    qWrap.style.display='none'; aWrap.style.display='none';
+    const imgWords=words.filter(w=>w.imgUrl);
+    warn.style.display='block';
+    warn.textContent='🖼 Görseli olan kelime: '+imgWords.length+' adet — görsel ekledikçe bu mod zenginleşir.';
+  }
+}
 
 function setFcFront(lang, el){
   fcFront=lang;
@@ -3376,8 +3411,17 @@ function setFcFront(lang, el){
 }
 
 function initFlashcard(){
+  const modeVal=document.getElementById('fcModeSelect')?document.getElementById('fcModeSelect').value:'normal';
+  fcImgMode=modeVal!=='normal';
+  fcImgTarget=modeVal==='img_sy'?'sy':'en';
+
   const filter=document.getElementById('fcTypeFilter').value;
   let pool=filter==='hepsi'?[...words]:words.filter(w=>w.type===filter);
+
+  if(fcImgMode){
+    pool=pool.filter(w=>w.imgUrl);
+    if(!pool.length){showToast('⚠ Görsel eklenmiş kelime bulunamadı. Önce kelime eklerken görsel seçin.');return;}
+  }
   if(!pool.length){showToast('⚠ Bu filtrede kelime yok');return;}
 
   // Shuffle
@@ -3406,53 +3450,62 @@ function showFcCard(){
   document.getElementById('fcWrong').textContent='✗ '+fcWrongCount;
   document.getElementById('fcBarFill').style.width=(fcIndex/total*100)+'%';
 
-  // Dropdown'lardan dil oku
-  const qSel=document.getElementById('fcQuestionLang');
-  const aSel=document.getElementById('fcAnswerLang');
-  const qLang=qSel?qSel.value:'tr';
-  const aLang=aSel?aSel.value:'sy';
-  fcFront=qLang; // global güncelle
-
   const langLabels={tr:'Türkçe',sy:'Süryanice',en:'İngilizce'};
-
-  // Front - soru dili
-  document.getElementById('fcFrontText').textContent=getFcText(w,qLang);
-  document.getElementById('fcHint').style.display='block';
-
-  // Back - cevap dili
-  document.getElementById('fcBack').style.display='none';
-  document.getElementById('fcBackLabel').textContent=langLabels[aLang]||aLang;
-  document.getElementById('fcBackText').textContent=getFcText(w,aLang);
-  // Üçüncü dil (soru ve cevap dışındaki)
-  const allLangs=['tr','sy','en'];
-  const thirdLang=allLangs.find(function(l){return l!==qLang&&l!==aLang;})||'';
-  document.getElementById('fcBackExtra').textContent=thirdLang?getFcText(w,thirdLang):'';
-
-  // Card style reset
   const card=document.getElementById('fcCard');
   card.style.borderColor='var(--brd)';
   card.style.background='var(--surf)';
   document.getElementById('fcBtns').style.display='none';
   document.getElementById('fcQuizBtns').style.display='none';
+  document.getElementById('fcBack').style.display='none';
 
-  // Type badge
-  if(w.type){
-    const color=typeColors[w.type]||'#bdbdbd';
-    document.getElementById('fcFrontLabel').innerHTML=(langLabels[qLang]||qLang)
-      +' <span style="margin-left:8px;padding:2px 8px;border-radius:20px;background:'+color+'22;color:'+color+';font-size:0.7rem">'+w.type+'</span>';
+  if(fcImgMode){
+    // GÖRSEL MOD — resmi göster, cevap gizli
+    document.getElementById('fcImgWrap').style.display='block';
+    document.getElementById('fcImg').src=w.imgUrl||'';
+    document.getElementById('fcFrontLabel').innerHTML='🖼 Bu görsel hangi '+langLabels[fcImgTarget]+'?'
+      +(w.type?'<span style="margin-left:8px;padding:2px 8px;border-radius:20px;background:var(--pb);color:var(--acc);font-size:0.7rem">'+w.type+'</span>':'');
+    document.getElementById('fcFrontText').textContent='';
+    document.getElementById('fcHint').style.display='block';
+    document.getElementById('fcHint').textContent='👆 Cevabı görmek için tıkla';
+    // Arka yüz hazırla
+    document.getElementById('fcBackLabel').textContent=langLabels[fcImgTarget];
+    document.getElementById('fcBackText').textContent=getFcText(w,fcImgTarget);
+    // Ek bilgi: diğer diller
+    const extras=[w.tr,w.en].filter(Boolean).join(' · ');
+    document.getElementById('fcBackExtra').textContent=extras||'';
   } else {
-    document.getElementById('fcFrontLabel').textContent=langLabels[qLang]||qLang;
+    // NORMAL MOD
+    document.getElementById('fcImgWrap').style.display='none';
+    const qSel=document.getElementById('fcQuestionLang');
+    const aSel=document.getElementById('fcAnswerLang');
+    const qLang=qSel?qSel.value:'tr';
+    const aLang=aSel?aSel.value:'sy';
+    fcFront=qLang;
+
+    document.getElementById('fcFrontText').textContent=getFcText(w,qLang);
+    document.getElementById('fcHint').style.display='block';
+    document.getElementById('fcHint').textContent='👆 Cevabı görmek için tıkla';
+    document.getElementById('fcBackLabel').textContent=langLabels[aLang]||aLang;
+    document.getElementById('fcBackText').textContent=getFcText(w,aLang);
+    const allLangs=['tr','sy','en'];
+    const thirdLang=allLangs.find(function(l){return l!==qLang&&l!==aLang;})||'';
+    document.getElementById('fcBackExtra').textContent=thirdLang?getFcText(w,thirdLang):'';
+
+    if(w.type){
+      const color=typeColors[w.type]||'#bdbdbd';
+      document.getElementById('fcFrontLabel').innerHTML=(langLabels[qLang]||qLang)
+        +' <span style="margin-left:8px;padding:2px 8px;border-radius:20px;background:'+color+'22;color:'+color+';font-size:0.7rem">'+w.type+'</span>';
+    } else {
+      document.getElementById('fcFrontLabel').textContent=langLabels[qLang]||qLang;
+    }
   }
 
-  // Sınav modu
+  card.style.cursor='pointer';
   if(fcQuizMode){
-    document.getElementById('fcCard').style.cursor='default';
+    card.style.cursor='default';
     document.getElementById('fcHint').style.display='none';
     document.getElementById('fcQuizBtns').style.display='block';
     showFcQuizOptions();
-  } else {
-    document.getElementById('fcCard').style.cursor='pointer';
-    document.getElementById('fcQuizBtns').style.display='none';
   }
 }
 
@@ -3772,14 +3825,18 @@ function getFcQuizOptions(correct, ansLang){
 
 function showFcQuizOptions(){
   var w = fcWords[fcIndex];
-  var _ql2 = document.getElementById('fcAnswerLang');
-  var _ql3 = document.getElementById('fcQuestionLang');
-  var ansLang = _ql2 ? _ql2.value : 'tr';
-  var qLang2 = _ql3 ? _ql3.value : 'tr';
-  // Soru ve cevap dili aynıysa mantıklı değil - farklı dile geç
-  if(ansLang === qLang2){
-    var allL=['tr','sy','en'];
-    ansLang = allL.find(function(l){return l!==qLang2;})||'tr';
+  var ansLang;
+  if(fcImgMode){
+    ansLang = fcImgTarget; // görsel modda hedef dil
+  } else {
+    var _ql2 = document.getElementById('fcAnswerLang');
+    var _ql3 = document.getElementById('fcQuestionLang');
+    ansLang = _ql2 ? _ql2.value : 'tr';
+    var qLang2 = _ql3 ? _ql3.value : 'tr';
+    if(ansLang === qLang2){
+      var allL=['tr','sy','en'];
+      ansLang = allL.find(function(l){return l!==qLang2;})||'tr';
+    }
   }
 
   var opts = getFcQuizOptions(w, ansLang);
