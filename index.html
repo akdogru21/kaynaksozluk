@@ -560,7 +560,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         </div>
         <div class="igroup">
           <label class="ilabel">Transliterasyon</label>
-          <input type="text" class="winput" id="inp_tr2" placeholder="örn: ʾEdta, ʕBda ...">
+          <input type="text" class="winput" id="inp_tr2" placeholder="örn: ʾEdta, ʕBda ..." oninput="scheduleAutoFetchTranslit()">
           <div id="charBtns" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
             <button type="button" class="chbtn" onclick="insChar('ʾ')" title="Alaf (ʾ)">ʾ</button>
             <button type="button" class="chbtn" onclick="insChar('˕')" title="Ayn (ʕ)">˕</button>
@@ -827,15 +827,9 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <button class="abtn hl edit-only" onclick="showKaynakModal()" style="display:none"><span>＋</span>Kaynak Ekle</button>
       </div>
       <div style="padding:16px 20px">
-        <p style="font-size:0.9rem;color:var(--txt-d);line-height:1.8;margin-bottom:14px">Süryanice öğrenimine yardımcı dosyalar, videolar ve bağlantılar.</p>
-        <div id="kaynakFilterBar" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">
-          <button class="fbtn active" id="kfilt-video" onclick="setKaynakFilter('video',this)">▶ Video</button>
-          <button class="fbtn" id="kfilt-link" onclick="setKaynakFilter('link',this)">🔗 Bağlantı</button>
-          <button class="fbtn" id="kfilt-dosya" onclick="setKaynakFilter('dosya',this)">📄 Dosya</button>
-          <button class="fbtn" id="kfilt-hepsi" onclick="setKaynakFilter('hepsi',this)">Tümü</button>
-        </div>
+        <p style="font-size:0.9rem;color:var(--txt-d);line-height:1.8;margin-bottom:16px">Süryanice öğrenimine yardımcı dosyalar, videolar ve bağlantılar.</p>
         <div id="kaynakList"></div>
-        <div id="kaynakEmpty" style="text-align:center;padding:32px;color:var(--txt-d);opacity:.5;font-style:italic">Bu türde kaynak bulunmuyor.</div>
+        <div id="kaynakEmpty" style="text-align:center;padding:32px;color:var(--txt-d);opacity:.5;font-style:italic">Henüz kaynak eklenmemiş.</div>
       </div>
     </div>
   </div><!-- /tab-kaynaklar -->
@@ -2393,12 +2387,14 @@ function scheduleAutoFetch(){
     const sd=document.getElementById('sedra-status'); if(sd) sd.remove();
     return;
   }
-  // Yeni kelime yazılınca İngilizce'yi temizle
-  document.getElementById('inp_en').value='';
+  // Yeni kelime yazılınca İngilizce'yi temizle (sadece kullanıcı yazmadıysa)
   autoFetchTimer=setTimeout(()=>{
+    // İngilizce ve Süryanice eş zamanlı çek
     fetchEnglish(val);
-    if(getClaudeKey()) fetchSyriac();
-  },1000);
+    if(getClaudeKey() && !document.getElementById('inp_sy').value.trim()){
+      fetchSyriacAuto(val, 'tr');
+    }
+  },900);
 }
 
 async function fetchEnglish(word){
@@ -2417,7 +2413,12 @@ function scheduleAutoFetchEn(){
   clearTimeout(autoFetchEnTimer);
   const val=document.getElementById('inp_en').value.trim();
   if(!val) return;
-  autoFetchEnTimer=setTimeout(()=>fetchTurkish(val),1000);
+  autoFetchEnTimer=setTimeout(()=>{
+    fetchTurkish(val);
+    if(getClaudeKey() && !document.getElementById('inp_sy').value.trim()){
+      fetchSyriacAuto(val, 'en');
+    }
+  },900);
 }
 
 async function fetchTurkish(word){
@@ -2447,22 +2448,152 @@ async function fetchSyriac(){
   btn.textContent='⏳';btn.disabled=true;
   try{
     const data=await askClaude(word);
-    // Fill Syriac field (script only, no transliteration)
     const syScript=(data.sy||'').split('(')[0].trim();
     if(syScript) document.getElementById('inp_sy').value=syScript;
-    // Transliterasyonu otomatik fonksiyondan üret
     const autoTranslit = syScript ? syriacToLatin(syScript) : '';
     if(autoTranslit) document.getElementById('inp_tr2').value=autoTranslit;
     if(data.en&&!document.getElementById('inp_en').value) document.getElementById('inp_en').value=data.en;
     if(data.type) document.getElementById('inp_type').value=data.type;
     showToast('✦ Süryanice getirildi, SEDRA doğrulanıyor...');
-    // SEDRA doğrulaması
     if(syScript) verifySedra(syScript);
   }catch(e){
     showToast('⚠ '+e.message);
   }finally{
     btn.textContent='ܐ Getir';btn.disabled=false;
   }
+}
+
+/* ── OTOMATİK SÜRYANİCE GETIR (arka plan) ───── */
+async function fetchSyriacAuto(word, sourceLang){
+  if(!getClaudeKey()) return;
+  if(document.getElementById('inp_sy').value.trim()) return; // zaten doluysa dokunma
+  const btn=document.getElementById('fetchSyBtn');
+  btn.textContent='⏳';btn.disabled=true;
+  try{
+    const data=await askClaude(word);
+    const syScript=(data.sy||'').split('(')[0].trim();
+    if(syScript && !document.getElementById('inp_sy').value.trim()){
+      document.getElementById('inp_sy').value=syScript;
+    }
+    const autoTranslit = syScript ? syriacToLatin(syScript) : '';
+    if(autoTranslit && !document.getElementById('inp_tr2').value.trim()){
+      document.getElementById('inp_tr2').value=autoTranslit;
+    }
+    if(data.en && !document.getElementById('inp_en').value.trim()) document.getElementById('inp_en').value=data.en;
+    if(data.tr && !document.getElementById('inp_tr').value.trim()) document.getElementById('inp_tr').value=data.tr;
+    if(data.type && !document.getElementById('inp_type').value) document.getElementById('inp_type').value=data.type;
+    if(syScript) verifySedra(syScript);
+  }catch(e){
+    console.warn('Auto Syriac fetch failed:', e);
+  }finally{
+    btn.textContent='ܐ Getir';btn.disabled=false;
+  }
+}
+
+/* ── TRANSLİTERASYON → SÜRYANİCE + TR/EN ────── */
+let autoFetchTranslitTimer=null;
+function scheduleAutoFetchTranslit(){
+  clearTimeout(autoFetchTranslitTimer);
+  const val=document.getElementById('inp_tr2').value.trim();
+  if(!val) return;
+
+  // Transliterasyondan Süryanice alfabe üret (anlık, gecikme olmadan)
+  const syFromTranslit=latinToSyriac(val);
+  if(syFromTranslit && !document.getElementById('inp_sy').value.trim()){
+    document.getElementById('inp_sy').value=syFromTranslit;
+  }
+
+  // TR ve EN çekimi için de schedule et
+  autoFetchTranslitTimer=setTimeout(async ()=>{
+    // Eğer hem TR hem EN boşsa, Claude'dan çek
+    const trEmpty=!document.getElementById('inp_tr').value.trim();
+    const enEmpty=!document.getElementById('inp_en').value.trim();
+    if((trEmpty||enEmpty) && getClaudeKey()){
+      try{
+        const data=await askClaude(val);
+        if(data.tr && trEmpty) document.getElementById('inp_tr').value=data.tr;
+        if(data.en && enEmpty) document.getElementById('inp_en').value=data.en;
+        if(data.type && !document.getElementById('inp_type').value) document.getElementById('inp_type').value=data.type;
+        // Süryanice de gelmişse ve boşsa doldur
+        if(data.sy){
+          const syScript=(data.sy||'').split('(')[0].trim();
+          if(syScript && !document.getElementById('inp_sy').value.trim()){
+            document.getElementById('inp_sy').value=syScript;
+          }
+        }
+      }catch(e){ console.warn('Translit fetch failed:', e); }
+    } else if(trEmpty || enEmpty){
+      // API key yoksa MyMemory ile dene (transliterasyonu İngilizce olarak kullan)
+      if(enEmpty){
+        try{
+          const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(val)+'&langpair=en|tr');
+          const d=await r.json();
+          const t=d?.responseData?.translatedText;
+          if(t && t.toLowerCase()!==val.toLowerCase() && trEmpty) document.getElementById('inp_tr').value=t;
+        }catch(e){}
+      }
+    }
+  },800);
+}
+
+/* ── LATİN → SÜRYANİCE ALFABE ───────────────── */
+function latinToSyriac(text){
+  if(!text) return '';
+  // Transliterasyon → Süryanice harf eşleme tablosu (Doğu/Batı Süryanice)
+  const map=[
+    // Önce uzun kombinasyonlar
+    ['sh','ܫ'],['th','ܬ'],['kh','ܟ̰'],['ph','ܦ'],
+    ['ṭ','ܛ'],['ṣ','ܨ'],['ḥ','ܚ'],['š','ܫ'],
+    // Özel karakterler
+    ['ʾ','ܐ'],["ʕ",'ܥ'],["ʿ",'ܥ'],
+    // Tekil harfler
+    ['a','ܐ'],['b','ܒ'],['g','ܓ'],['d','ܕ'],['h','ܗ'],
+    ['w','ܘ'],['z','ܙ'],['y','ܝ'],['k','ܟ'],['l','ܠ'],
+    ['m','ܡ'],['n','ܢ'],['s','ܣ'],['p','ܦ'],['q','ܩ'],
+    ['r','ܪ'],['t','ܬ'],
+    // Büyük harf versiyonları
+    ['A','ܐ'],['B','ܒ'],['G','ܓ'],['D','ܕ'],['H','ܗ'],
+    ['W','ܘ'],['Z','ܙ'],['Y','ܝ'],['K','ܟ'],['L','ܠ'],
+    ['M','ܡ'],['N','ܢ'],['S','ܣ'],['P','ܦ'],['Q','ܩ'],
+    ['R','ܪ'],['T','ܬ'],
+  ];
+
+  let result='';
+  let i=0;
+  const lower=text.toLowerCase();
+  while(i<text.length){
+    let matched=false;
+    // Önce 2 karakterli kombinasyonları dene
+    if(i+1<text.length){
+      const two=lower[i]+lower[i+1];
+      for(const [lat,sy] of map){
+        if(lat.toLowerCase()===two){
+          result+=sy;
+          i+=2;
+          matched=true;
+          break;
+        }
+      }
+    }
+    if(!matched){
+      const one=lower[i];
+      for(const [lat,sy] of map){
+        if(lat.toLowerCase()===one&&lat.length===1){
+          result+=sy;
+          i++;
+          matched=true;
+          break;
+        }
+      }
+    }
+    if(!matched){
+      // Hareket/sayı/boşluk vs olduğu gibi bırak
+      if(text[i]===' ') result+=' ';
+      // Ünlüler ve bilinmeyenler atla (ünsüz alfabesi)
+      i++;
+    }
+  }
+  return result;
 }
 
 async function verifySedra(syWord){
@@ -2560,34 +2691,17 @@ async function loadKaynaklar(){
 }
 function saveKaynaklar(){/* Supabase ile çalışıyor, bu fonksiyon artık kullanılmıyor */}
 
-let activeKaynakFilter='video';
-function setKaynakFilter(type,btn){
-  activeKaynakFilter=type;
-  document.querySelectorAll('#kaynakFilterBar .fbtn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  renderKaynaklar();
-}
 function renderKaynaklar(){
   const list=document.getElementById('kaynakList');
   const empty=document.getElementById('kaynakEmpty');
   if(!list) return;
-  // Filtreye göre göster
-  const filtered=kaynaklar.filter(k=>{
-    if(activeKaynakFilter==='hepsi') return true;
-    if(activeKaynakFilter==='video'){
-      const isYt=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
-      return isYt||k.type==='video';
-    }
-    return k.type===activeKaynakFilter;
-  });
-  if(!filtered.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(!kaynaklar.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
   if(empty)empty.style.display='none';
-  list.innerHTML=filtered.map((k)=>{
-    const i=kaynaklar.indexOf(k);
+  list.innerHTML=kaynaklar.map((k,i)=>{
     const isYoutube=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
     const isVideo=isYoutube||k.type==='video';
-    const icon=isVideo?'▶':k.type==='dosya'?'📄':'🔗';
-    const typeLabel=isVideo?'Video':k.type==='dosya'?'Dosya':'Bağlantı';
+    const icon=isVideo?'▶':'📄';
+    const typeLabel=isVideo?'Video':'Dosya/Link';
     // YouTube embed ID
     let embedHtml='';
     if(isYoutube&&k.url){
