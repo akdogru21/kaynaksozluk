@@ -568,14 +568,14 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
   <div class="actions-row">
     <button class="abtn hl edit-only" onclick="toggleAdd()" style="display:none"><span>＋</span>Kelime Ekle</button>
-    <button class="abtn" onclick="exportExcel()"><span>⬇</span>Excel İndir</button>
-    <button class="fav-filter-btn" id="favFilterBtn" onclick="toggleFavFilter()">⭐ Favoriler</button>
-    <button class="abtn" onclick="showPdfModal()"><span>📄</span>PDF İndir</button>
     <button class="abtn edit-only" onclick="document.getElementById('imp').click()" style="display:none"><span>⬆</span>Excel Yükle</button>
     <input type="file" id="imp" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)">
+    <button class="abtn" onclick="exportExcel()"><span>⬇</span>Excel İndir</button>
+    <button class="abtn" onclick="showPdfModal()"><span>📄</span>PDF İndir</button>
+    <button class="fav-filter-btn" id="favFilterBtn" onclick="toggleFavFilter()">⭐ Favoriler</button>
     <button class="abtn danger edit-only" onclick="clearAll()" style="display:none"><span>⊘</span>Tümünü Sil</button>
-    <button class="abtn" onclick="showApiKeyModal()" style="margin-left:4px" title="Claude API Key"><span>🔑</span>API Key</button>
-    <button class="abtn" onclick="showUnsplashKeyModal()" title="Unsplash görsel ayarı"><span>🖼</span>Görsel</button>
+    <button class="abtn" onclick="showApiKeyModal()" style="margin-left:auto" title="Claude API Key"><span>🔑</span>API Key</button>
+    <button class="abtn" onclick="showUnsplashKeyModal()" title="Görsel ayarı"><span>🖼</span>Görsel</button>
   </div>
 
   <div class="add-wrap" id="addWrap">
@@ -1230,25 +1230,51 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   </div>
 </div>
 
-<!-- Unsplash Key Modalı -->
+<!-- Görsel Ayar Modalı -->
 <div id="unsplashKeyModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);align-items:center;justify-content:center">
-  <div style="background:var(--surf);border:1.5px solid var(--acc);border-radius:12px;padding:28px;width:min(440px,90vw)">
-    <div style="font-family:var(--fh);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:6px">🖼 Görsel Ayarı</div>
-    <p style="font-size:13px;color:var(--txt-d);margin-bottom:4px;line-height:1.6">Kelime eklenirken <strong>Unsplash</strong>'tan otomatik görsel önerisi gösterilir.</p>
-    <p style="font-size:12px;color:var(--txt-d);margin-bottom:16px;line-height:1.6">Key gerektirmez — <code style="font-family:var(--fm);background:var(--surf2);padding:1px 6px;border-radius:4px">source.unsplash.com</code> endpoint'i kullanılır.</p>
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surf2);border-radius:8px;margin-bottom:18px;border:1px solid var(--brd-s)">
-      <span style="font-size:20px">🖼</span>
-      <div>
+  <div style="background:var(--surf);border:1.5px solid var(--acc);border-radius:12px;padding:28px;width:min(460px,90vw)">
+    <div style="font-family:var(--fh);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:14px">🖼 Görsel Ayarları</div>
+
+    <!-- Toggle -->
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surf2);border-radius:8px;margin-bottom:16px;border:1px solid var(--brd-s)">
+      <span style="font-size:18px">🖼</span>
+      <div style="flex:1">
         <div style="font-family:var(--fm);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--acc-d);margin-bottom:2px">Görsel Önizleme</div>
-        <div style="font-size:12px;color:var(--txt-d)">Kelime eklerken İngilizce çeviriye göre 6 görsel seçeneği sunulur</div>
+        <div style="font-size:12px;color:var(--txt-d)">Kelime eklerken 6 görsel seçeneği sunulur</div>
       </div>
-      <label style="margin-left:auto;position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+      <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
         <input type="checkbox" id="imgToggle" onchange="toggleImgFeature(this)" style="opacity:0;width:0;height:0">
         <span id="imgToggleSlider" style="position:absolute;cursor:pointer;inset:0;background:var(--brd);border-radius:20px;transition:.3s"></span>
       </label>
     </div>
+
+    <!-- Kaynak açıklaması -->
+    <div style="margin-bottom:16px;padding:12px 14px;background:var(--surf2);border-radius:8px;border:1px solid var(--brd-s)">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--acc-d);margin-bottom:8px">Görsel Kaynakları</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt-d)">
+          <span style="font-family:var(--fm);font-size:8px;padding:2px 7px;background:var(--pb);color:var(--acc);border-radius:4px">1. ÖNCELİK</span>
+          <span><strong style="color:var(--txt)">Wikimedia Commons</strong> — key gerekmez, UNESCO kalıcı arşiv</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt-d)">
+          <span style="font-family:var(--fm);font-size:8px;padding:2px 7px;background:var(--surf3);color:var(--txt-d);border-radius:4px">2. YEDEK</span>
+          <span><strong style="color:var(--txt)">Pixabay</strong> — ücretsiz key ile devreye girer</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pixabay key -->
+    <div style="margin-bottom:18px">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--acc-d);margin-bottom:8px">Pixabay API Key <span style="opacity:.5">(isteğe bağlı — yedek kaynak)</span></div>
+      <div style="display:flex;gap:6px">
+        <input type="password" class="winput" id="pixabayKeyInput" placeholder="Pixabay API key..." style="flex:1;font-size:13px">
+        <a href="https://pixabay.com/api/docs/" target="_blank" style="display:flex;align-items:center;padding:0 12px;font-family:var(--fm);font-size:9px;letter-spacing:1px;color:var(--acc-d);border:1.5px solid var(--brd);border-radius:6px;white-space:nowrap;text-decoration:none">Key Al →</a>
+      </div>
+    </div>
+
     <div style="display:flex;gap:8px">
-      <button class="btn btn-p" onclick="closeUnsplashKeyModal()">Tamam</button>
+      <button class="btn btn-p" onclick="savePixabayKey()">Kaydet</button>
+      <button class="btn btn-s" onclick="closeUnsplashKeyModal()">İptal</button>
     </div>
   </div>
 </div>
@@ -3877,12 +3903,17 @@ function renderHomeStats(){
 }
 
 /* ── GÖRSEL EŞLEŞTİRME SİSTEMİ ─────────────── */
+/* Kaynak 1: Wikimedia Commons (key yok, kalıcı, UNESCO)  */
+/* Kaynak 2: Pixabay (ücretsiz key, fallback)              */
 let _imgPending=null;
-let _imgSelected=null; // {url, sig}
+let _imgSelected=null;
 
-// İngilizce kelimeyi Unsplash için temizle (to eat → eat, to write → write)
+const PIXABAY_KEY_NAME='sozluk_pixabay_key';
+function getPixabayKey(){return localStorage.getItem(PIXABAY_KEY_NAME)||'';}
+
+// İngilizce kelimeyi temizle: "to eat" → "eat", "book/kitap" → "book"
 function _imgQuery(en){
-  return (en||'').replace(/^to\s+/i,'').split('/')[0].trim();
+  return (en||'').replace(/^to\s+/i,'').split(/[/,]/)[0].trim().toLowerCase();
 }
 
 function _commitWord(imgUrl){
@@ -3903,8 +3934,8 @@ function _commitWord(imgUrl){
 
 function openImgModal(tr, en){
   _imgSelected=null;
+  const q=_imgQuery(en||tr);
   document.getElementById('imgm-tr-label').textContent=tr||'';
-  const q=_imgQuery(en);
   document.getElementById('imgm-en-label').textContent=q?'🔍 "'+q+'" olarak aranıyor':'';
   document.getElementById('imgm-confirm').classList.remove('ready');
   document.getElementById('imgm-grid').style.display='none';
@@ -3912,50 +3943,81 @@ function openImgModal(tr, en){
   document.getElementById('imgm-err').style.display='none';
   document.getElementById('imgm-loading').style.display='block';
   document.getElementById('imgMatchModal').classList.add('open');
-  _loadImgGrid(q||tr);
+  _fetchImages(q);
 }
 
-function _loadImgGrid(q){
+/* ── WIKIMEDIA COMMONS ARAMA ── */
+async function _fetchWikimedia(q){
+  const url='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6'
+    +'&gsrsearch='+encodeURIComponent(q)+'&gsrlimit=9&prop=imageinfo&iiprop=url|size|mime'
+    +'&iiurlwidth=400&format=json&origin=*';
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('Wikimedia HTTP '+res.status);
+  const data=await res.json();
+  const pages=data.query&&data.query.pages?Object.values(data.query.pages):[];
+  return pages
+    .filter(p=>p.imageinfo&&p.imageinfo[0]&&/^image\/(jpeg|png|webp|gif)$/i.test(p.imageinfo[0].mime||''))
+    .map(p=>({url:p.imageinfo[0].thumburl||p.imageinfo[0].url,source:'wikimedia'}))
+    .slice(0,6);
+}
+
+/* ── PIXABAY ARAMA (fallback) ── */
+async function _fetchPixabay(q){
+  const key=getPixabayKey();
+  if(!key) return [];
+  const url='https://pixabay.com/api/?key='+key+'&q='+encodeURIComponent(q)+'&image_type=photo&per_page=6&safesearch=true&orientation=horizontal';
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('Pixabay HTTP '+res.status);
+  const data=await res.json();
+  return (data.hits||[]).map(h=>({url:h.webformatURL,source:'pixabay'}));
+}
+
+async function _fetchImages(q){
   const grid=document.getElementById('imgm-grid');
   const loading=document.getElementById('imgm-loading');
   const err=document.getElementById('imgm-err');
-  const encoded=encodeURIComponent(q);
-  let loaded=0, failed=0;
-  const total=6;
-  grid.innerHTML='';
+  grid.innerHTML=''; grid.style.display='none';
+  err.style.display='none'; loading.style.display='block';
 
-  for(let sig=1;sig<=total;sig++){
-    const url=`https://source.unsplash.com/300x300/?${encoded}&sig=${sig}`;
+  let imgs=[];
+  try{
+    imgs=await _fetchWikimedia(q);
+    if(imgs.length<3){
+      // Wikimedia yetmezse Pixabay ile tamamla
+      const pbImgs=await _fetchPixabay(q);
+      const needed=6-imgs.length;
+      imgs=[...imgs,...pbImgs.slice(0,needed)];
+    }
+  }catch(e){
+    console.warn('Wikimedia hata, Pixabay deneniyor:',e);
+    try{ imgs=await _fetchPixabay(q); }catch(e2){console.error('Pixabay de hata:',e2);}
+  }
+
+  loading.style.display='none';
+  if(!imgs.length){err.style.display='block'; return;}
+
+  grid.innerHTML='';
+  imgs.forEach(function(item){
     const card=document.createElement('div');
     card.className='imgm-card';
     const img=document.createElement('img');
-    img.loading='lazy';
-    img.alt=q;
+    img.src=item.url; img.loading='lazy'; img.alt=q;
     const check=document.createElement('div');
-    check.className='imgm-check';
-    check.textContent='✓';
-    card.appendChild(img);
-    card.appendChild(check);
-    const sigVal=sig;
+    check.className='imgm-check'; check.textContent='✓';
+    const badge=document.createElement('div');
+    badge.style.cssText='position:absolute;bottom:5px;left:5px;font-size:7px;font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,.5);color:#fff;padding:2px 5px;border-radius:3px';
+    badge.textContent=item.source==='wikimedia'?'Wiki':'Pixabay';
+    card.appendChild(img); card.appendChild(check); card.appendChild(badge);
     card.onclick=function(){
       document.querySelectorAll('.imgm-card').forEach(c=>c.classList.remove('selected'));
       card.classList.add('selected');
-      _imgSelected={url:img.src, sig:sigVal};
+      _imgSelected={url:item.url};
       document.getElementById('imgm-confirm').classList.add('ready');
     };
-    img.onload=function(){
-      loaded++;
-      if(loaded===1){loading.style.display='none'; grid.style.display='grid';}
-    };
-    img.onerror=function(){
-      failed++;
-      card.style.opacity='.3';
-      card.style.pointerEvents='none';
-      if(loaded===0&&failed===total){loading.style.display='none'; err.style.display='block';}
-    };
-    img.src=url;
+    img.onerror=function(){card.style.cssText='opacity:.2;pointer-events:none';};
     grid.appendChild(card);
-  }
+  });
+  grid.style.display='grid';
 }
 
 function imgModalRetry(){
@@ -3963,48 +4025,52 @@ function imgModalRetry(){
   const q=_imgQuery(_imgPending.en||_imgPending.tr);
   document.getElementById('imgm-err').style.display='none';
   document.getElementById('imgm-loading').style.display='block';
-  _loadImgGrid(q);
+  _fetchImages(q);
 }
-
 function imgModalConfirm(){
   if(!_imgSelected){showToast('⚠ Önce bir görsel seçin');return;}
   document.getElementById('imgMatchModal').classList.remove('open');
   _commitWord(_imgSelected.url);
 }
-
 function imgModalSkip(){
   document.getElementById('imgMatchModal').classList.remove('open');
   _commitWord(null);
 }
 
-/* Unsplash ayar modalı */
+/* ── GÖRSEL AYAR MODALİ ── */
 function showUnsplashKeyModal(){
   const modal=document.getElementById('unsplashKeyModal');
+  // Pixabay key'i göster
+  const pkInput=document.getElementById('pixabayKeyInput');
+  if(pkInput){const k=getPixabayKey();pkInput.value=k?'••••••••••••••':'';}
   modal.style.display='flex';
   const enabled=localStorage.getItem('sozluk_img_enabled')!=='false';
-  const sl=document.getElementById('imgToggleSlider');
   const cb=document.getElementById('imgToggle');
-  cb.checked=enabled;
-  sl.style.background=enabled?'var(--acc)':'var(--brd)';
-  if(enabled) sl.style.setProperty('--before-x','18px');
+  const sl=document.getElementById('imgToggleSlider');
+  if(cb) cb.checked=enabled;
+  if(sl) sl.style.background=enabled?'var(--acc)':'var(--brd)';
 }
 function closeUnsplashKeyModal(){
   document.getElementById('unsplashKeyModal').style.display='none';
 }
+function savePixabayKey(){
+  const v=document.getElementById('pixabayKeyInput').value.trim();
+  if(v&&!v.startsWith('•')){localStorage.setItem(PIXABAY_KEY_NAME,v); showToast('✦ Pixabay key kaydedildi');}
+  closeUnsplashKeyModal();
+}
 function toggleImgFeature(cb){
   localStorage.setItem('sozluk_img_enabled',cb.checked?'true':'false');
   const sl=document.getElementById('imgToggleSlider');
-  sl.style.background=cb.checked?'var(--acc)':'var(--brd)';
+  if(sl) sl.style.background=cb.checked?'var(--acc)':'var(--brd)';
   showToast(cb.checked?'🖼 Görsel önizleme açık':'🖼 Görsel önizleme kapalı');
 }
 document.getElementById('unsplashKeyModal').addEventListener('click',function(e){if(e.target===this)closeUnsplashKeyModal();});
 document.getElementById('imgMatchModal').addEventListener('click',function(e){if(e.target===this)imgModalSkip();});
 
-/* Toggle slider CSS trick */
 (function(){
-  const style=document.createElement('style');
-  style.textContent='#imgToggleSlider::before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;transform:translateX(0)} input:checked + #imgToggleSlider::before{transform:translateX(18px)}';
-  document.head.appendChild(style);
+  const s=document.createElement('style');
+  s.textContent='#imgToggleSlider::before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;transform:translateX(0)} #imgToggle:checked ~ #imgToggleSlider::before,input:checked + #imgToggleSlider::before{transform:translateX(18px)}';
+  document.head.appendChild(s);
 })();
 
 /* ── BAŞLANGIÇ ──────────────────────────────── */
