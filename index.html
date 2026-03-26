@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -1251,10 +1252,6 @@ async function sbGetNotes(){return sbFetch('/rest/v1/notes?select=*&order=id.asc
 async function sbAddNote(n){return sbFetch('/rest/v1/notes','POST',{title:n.title,body:n.body,cat:n.cat});}
 async function sbUpdateNote(id,n){return sbFetch('/rest/v1/notes?id=eq.'+id,'PATCH',{title:n.title,body:n.body,cat:n.cat});}
 async function sbDeleteNote(id){return sbFetch('/rest/v1/notes?id=eq.'+id,'DELETE');}
-async function sbGetResources(){return sbFetch('/rest/v1/resources?select=*&order=created_at.desc');}
-async function sbAddResource(r){return sbFetch('/rest/v1/resources','POST',{title:r.title,url:r.url,description:r.desc,resource_type:r.type,user_id:window.currentUser?.id||null});}
-async function sbUpdateResource(id,r){return sbFetch('/rest/v1/resources?id=eq.'+id,'PATCH',{title:r.title,url:r.url,description:r.desc,resource_type:r.type,updated_at:new Date().toISOString()});}
-async function sbDeleteResource(id){return sbFetch('/rest/v1/resources?id=eq.'+id,'DELETE');}
 
 let useCloud=false;
 async function initCloud(){
@@ -1283,12 +1280,10 @@ async function initCloud(){
         saveNotes();
         renderNotes();
       }
-      // Load resources from cloud
-      await loadKaynaklar();
       useCloud=true;
       document.getElementById('cloudInd').textContent='☁ Bulut bağlı';
       document.getElementById('cloudInd').style.color='#3a9a5a';
-      render();renderNotes();renderHomeStats();renderBiliyorMusun();renderGunKelimeCumle();
+      render();renderNotes();renderHomeStats();renderBiliyorMusun();renderGunKelimeCumle();    }
   } catch(e){
     console.error('Cloud init error:',e);
     document.getElementById('cloudInd').textContent='⚠ Çevrimdışı';
@@ -2539,38 +2534,13 @@ function showSedraStatus(found, glosses, category, syWord){
 
 /* ── KAYNAKLAR ─────────────────────────────── */
 const KAYNAK_KEY='sozluk_kaynaklar_v1';
-const KAYNAK_CACHE_KEY='sozluk_kaynaklar_cache';
 let kaynaklar=[];
 
-async function loadKaynaklar(){
-  try{
-    // Supabase'den kaynakları yükle
-    const data=await sbFetch('/rest/v1/resources?select=*&order=created_at.desc');
-    if(data&&Array.isArray(data)){
-      kaynaklar=data.map(r=>({
-        id:r.id,
-        title:r.title||'',
-        url:r.url||'',
-        desc:r.description||'',
-        type:r.resource_type||'link',
-        created_at:r.created_at,
-        user_id:r.user_id
-      }));
-      // Cache'e kaydet
-      try{localStorage.setItem(KAYNAK_CACHE_KEY,JSON.stringify(kaynaklar));}catch(e){}
-    }else{loadKaynaklar_Local();}
-  }catch(e){
-    console.warn('Supabase kaynaklar yükleme hatası:',e);
-    loadKaynaklar_Local();
-  }
+function loadKaynaklar(){
+  try{const r=localStorage.getItem(KAYNAK_KEY);if(r)kaynaklar=JSON.parse(r);}catch(e){kaynaklar=[];}
   renderKaynaklar();
 }
-function loadKaynaklar_Local(){
-  try{const r=localStorage.getItem('sozluk_kaynaklar_v1');if(r)kaynaklar=JSON.parse(r);}catch(e){kaynaklar=[];}
-}
-async function saveKaynaklar(){
-  // Artık saveKaynak() içinde yapılıyor
-}
+function saveKaynaklar(){try{localStorage.setItem(KAYNAK_KEY,JSON.stringify(kaynaklar));}catch(e){}}
 
 function renderKaynaklar(){
   const list=document.getElementById('kaynakList');
@@ -2627,72 +2597,29 @@ function showKaynakModal(idx){
   setTimeout(()=>document.getElementById('kaynakTitle').focus(),100);
 }
 function closeKaynakModal(){document.getElementById('kaynakModal').style.display='none';}
-async function saveKaynak(){
+function saveKaynak(){
   const title=document.getElementById('kaynakTitle').value.trim();
   const url=document.getElementById('kaynakUrl').value.trim();
   const desc=document.getElementById('kaynakDesc').value.trim();
   const type=document.getElementById('kaynakType').value;
   if(!title&&!url){showToast('⚠ Başlık veya link girin');return;}
+  // YouTube ise type otomatik video
   const isYt=url.includes('youtube.com')||url.includes('youtu.be');
   const finalType=isYt?'video':type;
-  try{
-    if(editingKaynakIdx>=0){
-      // GÜNCELLE
-      const kaynak=kaynaklar[editingKaynakIdx];
-      if(!kaynak.id){
-        // localStorage'dan = yerel güncelle
-        kaynaklar[editingKaynakIdx]={title,url,desc,type:finalType};
-        try{localStorage.setItem('sozluk_kaynaklar_v1',JSON.stringify(kaynaklar));}catch(e){}
-      }else{
-        // Supabase'de güncelle
-        await sbFetch('/rest/v1/resources?id=eq.'+kaynak.id,'PATCH',{
-          title,url,description:desc,resource_type:finalType,updated_at:new Date().toISOString()
-        });
-        kaynaklar[editingKaynakIdx]={...kaynak,title,url,desc,type:finalType};
-      }
-    }else{
-      // YENİ KAYNAK
-      const result=await sbFetch('/rest/v1/resources','POST',{
-        title,url,description:desc,resource_type:finalType,user_id:window.currentUser?.id||null
-      });
-      if(result&&Array.isArray(result)&&result[0]){
-        const nr=result[0];
-        kaynaklar.unshift({id:nr.id,title:nr.title,url:nr.url,desc:nr.description,type:nr.resource_type,created_at:nr.created_at,user_id:nr.user_id});
-      }
-    }
-    try{localStorage.setItem(KAYNAK_CACHE_KEY,JSON.stringify(kaynaklar));}catch(e){}
-    renderKaynaklar();
-    closeKaynakModal();
-    showToast('✦ Kaynak kaydedildi');
-  }catch(e){
-    console.error('saveKaynak hatası:',e);
-    showToast('⚠ İşlem başarısız: '+e.message);
+  if(editingKaynakIdx>=0){
+    kaynaklar[editingKaynakIdx]={title,url,desc,type:finalType};
+  } else {
+    kaynaklar.push({title,url,desc,type:finalType});
   }
+  saveKaynaklar();renderKaynaklar();closeKaynakModal();
+  showToast('✦ Kaynak kaydedildi');
 }
 function editKaynak(i){if(!requireAuth())return;showKaynakModal(i);}
-async function deleteKaynak(i){
+function deleteKaynak(i){
   if(!requireAuth())return;
   if(!confirm('Bu kaynak silinecek. Emin misiniz?')) return;
-  try{
-    const kaynak=kaynaklar[i];
-    if(!kaynak.id){
-      // localStorage'dan sil
-      kaynaklar.splice(i,1);
-      try{localStorage.setItem('sozluk_kaynaklar_v1',JSON.stringify(kaynaklar));}catch(e){}
-      renderKaynaklar();
-      showToast('Kaynak silindi');
-      return;
-    }
-    // Supabase'den sil
-    await sbFetch('/rest/v1/resources?id=eq.'+kaynak.id,'DELETE');
-    kaynaklar.splice(i,1);
-    try{localStorage.setItem(KAYNAK_CACHE_KEY,JSON.stringify(kaynaklar));}catch(e){}
-    renderKaynaklar();
-    showToast('Kaynak silindi');
-  }catch(e){
-    console.error('deleteKaynak hatası:',e);
-    showToast('⚠ Silme işlemi başarısız');
-  }
+  kaynaklar.splice(i,1);
+  saveKaynaklar();renderKaynaklar();showToast('Kaynak silindi');
 }
 
 /* ── REFERANS ─────────────────────────────── */
