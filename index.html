@@ -239,94 +239,250 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
 .cb-actions{display:flex;gap:8px;margin-top:14px}
 
+/* ══════════════════════════════════════════════
+   MOBİL UYUMLULUK — 3 BREAKPOINT
+   900px: tablet geniş
+   640px: tablet dar / büyük telefon
+   480px: telefon
+   ══════════════════════════════════════════════ */
+
+/* ── 900px: Tablet geniş ── */
+@media(max-width:900px){
+  .app{padding:0 14px 56px}
+  header{padding:32px 0 20px}
+}
+
+/* ── 640px: Tablet dar / büyük telefon ── */
 @media(max-width:640px){
+  /* Genel */
+  .app{padding:0 10px 72px}
+  body{font-size:0.97rem}
+  header{padding:22px 0 14px}
+
+  /* Başlık */
   #gun-grid{grid-template-columns:1fr 1fr!important}
   #gun-fiil,#gun-isim{border-bottom:1px solid var(--brd-s)}
   #gun-edat{border-right:none!important}
 
-  /* Genel */
-  
-  
-  
-  
-  
-
   /* Ayar çubuğu */
   .mini-theme{width:22px;height:22px}
   .icon-nav-btn{width:30px;height:30px}
-  .fsbtn{padding:5px 10px;font-size:10px}
+  .fsbtn{padding:5px 8px;font-size:9px}
+  .fslbl{font-size:9px;min-width:28px}
 
-  /* Sekmeler */
-  .tabs{gap:0;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  /* Sekmeler — yatay kaydır */
+  .tabs{gap:0;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:3px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
   .tab{padding:8px 10px;font-size:7.5px;letter-spacing:0.8px;white-space:nowrap;flex-shrink:0}
 
   /* İstatistik kartları */
-  .stats-row{gap:8px}
-  .stat-card{min-width:70px;padding:10px 12px}
+  .stats-row{gap:6px}
+  .stat-card{min-width:60px;padding:10px 10px}
   .stat-num{font-size:1.4rem}
-  .stat-lbl{font-size:8px}
+  .stat-lbl{font-size:7.5px;letter-spacing:1px}
 
-  /* Butonlar */
-  .actions-row{gap:6px}
-  .abtn{padding:7px 10px;font-size:8px;gap:4px}
+  /* Aksiyon butonları — sarma */
+  .actions-row{gap:5px;flex-wrap:wrap}
+  .abtn{padding:7px 10px;font-size:7.5px;gap:4px;letter-spacing:1px}
   .abtn span{font-size:12px}
-  .btn{padding:8px 16px;font-size:9px}
+  .btn{padding:8px 14px;font-size:9px}
+  .fav-filter-btn{padding:6px 10px;font-size:7.5px}
 
-  /* Form */
+  /* Kelime ekleme formu */
   .igrid{grid-template-columns:1fr}
-  .add-inner{padding:14px}
-  .char-btns{gap:2px}
-  .chbtn{padding:2px 4px;font-size:10px}
+  .add-wrap.open{max-height:900px}
+  .add-inner{padding:14px 12px}
+  .add-ttl{font-size:9px}
+  .char-btns{gap:3px}
+  .chbtn{padding:3px 6px;font-size:10px}
 
-  /* Tablo */
-  table{font-size:0.8rem}
-  td,th{padding:6px 8px}
-  td:first-child{width:28px}
+  /* Tablo — yatay kaydırılabilir */
+  .tbl-wrap{overflow:hidden}
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{font-size:0.8rem;min-width:480px}
+  td,th{padding:7px 8px}
+  td:first-child{width:26px}
+  .tbl-hdr{padding:10px 12px}
+  .tbl-ttl{font-size:9px}
+  .tpill{font-size:7px;padding:1px 6px}
+  .tdate{display:none}
 
-  /* Sözlük */
-  .tbl-hdr{padding:10px 14px}
-  .search-sec{margin-bottom:16px}
-  #searchInput{font-size:0.95rem}
+  /* Arama */
+  .search-sec{margin-bottom:14px}
+  #searchInput{font-size:0.9rem;padding:10px 12px 10px 40px}
+  .sicon{font-size:15px;left:12px}
+  .frow{gap:4px;margin-top:8px}
+  .fbtn{padding:4px 10px;font-size:8px}
 
-  /* Cümle kur */
+  /* Cümle Kur */
   .lang-tabs{gap:4px}
   .lang-tab{font-size:8px;padding:5px 8px}
   .lang-tag{display:none}
-  .tense-btn{padding:5px 10px;font-size:8px}
+  .tense-btn{padding:5px 8px;font-size:7.5px}
   .slot-row{min-height:40px;padding:8px}
-  .slot-word{padding:5px 10px;font-size:0.85rem}
+  .slot-word{padding:5px 10px;font-size:0.82rem}
   .word-pool{gap:5px}
-  .pool-word{padding:5px 10px;font-size:0.85rem}
-  #livePreview{font-size:0.9rem;padding:8px}
+  .pool-word{padding:5px 10px;font-size:0.82rem}
+  #livePreview{font-size:0.88rem;padding:8px}
+  .filter-pool{gap:4px}
 
-  /* Kelime Oyunu */
-  #fcCard{padding:20px 16px;min-height:190px;max-width:100%}
-  #fcFrontText{font-size:1.3rem}
+  /* Flashcard */
+  #fcCard{padding:20px 14px;min-height:180px;max-width:100%;border-radius:12px}
+  #fcFrontText{font-size:1.25rem}
   #fcBtns{gap:10px;max-width:100%}
-  #fcBtns .btn{padding:10px 20px;font-size:0.9rem}
+  #fcBtns .btn{padding:10px 16px;font-size:0.88rem;flex:1}
+  #fcQuizOptions{grid-template-columns:1fr 1fr;gap:8px}
+  #fcQuizOptions button{padding:10px 8px;font-size:0.82rem}
+  #fcImg{max-height:180px}
+
+  /* Flashcard ayar seçicileri */
+  #tab-flashcard .cb-section>div>div{min-width:0}
+  #fcModeSelect,#fcQuestionLang,#fcAnswerLang,#fcTypeFilter{min-width:0;width:100%;font-size:13px}
 
   /* Notlar */
-  .ntabs{gap:4px}
-  .ntab{padding:5px 12px;font-size:8px}
-  .note-card-body{font-size:0.85rem}
-  .note-card-hdr{padding:10px 12px}
-  .note-card-title{font-size:0.9rem}
+  .ntabs{gap:4px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .ntabs::-webkit-scrollbar{display:none}
+  .ntab{padding:5px 10px;font-size:7.5px;flex-shrink:0;white-space:nowrap}
+  .note-card-body{font-size:0.84rem;padding:10px 12px}
+  .note-card-hdr{padding:9px 12px}
+  .note-card-title{font-size:0.88rem}
+  .note-actions{gap:2px}
 
   /* Referans */
-  .ref-hdr{padding:10px 14px}
-  .ref-title{font-size:0.85rem}
-  .ref-table th,.ref-table td{padding:6px 8px;font-size:0.8rem}
-  .ref-table td.sy{font-size:0.95rem}
+  .ref-hdr{padding:9px 12px}
+  .ref-title{font-size:0.84rem}
+  .ref-table th,.ref-table td{padding:6px 8px;font-size:0.78rem}
+  .ref-table td.sy{font-size:0.88rem}
+  .ref-body{overflow-x:auto}
 
   /* İstatistik */
   #istatCards{grid-template-columns:1fr 1fr}
-  .istat-bar-label{min-width:80px;font-size:0.8rem}
+  .istat-bar-label{min-width:70px;font-size:0.78rem}
+  .istat-bar-count{font-size:0.75rem;min-width:24px}
   .istat-recent-row{flex-wrap:wrap;gap:4px}
+  .istat-num{font-size:1.6rem}
 
-  /* Gramer kutusu */
-  .gram-hint-item-body{font-size:0.8rem}
+  /* Gramer ipucu */
+  .gram-hint-item-body{font-size:0.78rem}
+  .gram-hint-item{padding:7px 10px}
+
+  /* Ana sayfa grid */
+  #homeStats{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+  .home-stat-num{font-size:1.4rem}
+  .home-stat-lbl{font-size:0.62rem}
+
+  /* Görsel modal */
+  .imgm-box{border-radius:10px}
+  .imgm-hdr{padding:14px 16px 10px}
+  .imgm-body{padding:12px 16px}
+  .imgm-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+  .imgm-footer{padding:0 16px 14px;gap:8px}
+  .imgm-credit{padding:0 16px 10px}
 }
 
+/* ── 480px: Telefon ── */
+@media(max-width:480px){
+  .app{padding:0 8px 80px}
+
+  /* Başlık küçült */
+  header>div:first-child>div:nth-child(2){font-size:1.5rem!important}
+  .save-ind{font-size:8px}
+
+  /* Sekmeler daha küçük */
+  .tab{padding:7px 8px;font-size:7px;letter-spacing:0.5px}
+
+  /* Butonlar — tam genişlik grupları */
+  .actions-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .actions-row .fav-filter-btn{grid-column:1/-1}
+  .actions-row .danger{grid-column:1/-1}
+  .abtn{justify-content:center;padding:9px 8px;font-size:7.5px}
+
+  /* Tablo sütunları — tarih ve tür gizle */
+  .tdate{display:none}
+  table th:nth-child(5),table td:nth-child(5){display:none}
+  table{min-width:0}
+
+  /* Form tam ekran */
+  .add-wrap.open{max-height:1200px}
+  .brow{flex-direction:column}
+  .brow .btn{width:100%}
+
+  /* Flashcard */
+  #fcCard{padding:16px 12px;min-height:160px}
+  #fcFrontText{font-size:1.1rem}
+  #fcBtns{flex-direction:column;gap:8px}
+  #fcBtns .btn{width:100%;padding:12px;font-size:0.9rem}
+  #fcImg{max-height:160px}
+
+  /* Görsel modal — tam ekran benzeri */
+  #imgMatchModal{padding:8px}
+  .imgm-box{max-height:96vh;border-radius:8px}
+  .imgm-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .imgm-footer{flex-direction:column;gap:8px;padding:0 12px 14px}
+  .imgm-skip,.imgm-confirm{flex:none;width:100%;text-align:center}
+
+  /* Modal giriş formları */
+  #apiKeyModal>div,#unsplashKeyModal>div,#loginModal>div,#pdfModal>div,#editModal>div{padding:20px 16px!important;border-radius:10px!important}
+
+  /* İstatistik kartları 2 kolon */
+  #istatCards{grid-template-columns:1fr 1fr!important}
+
+  /* Ana sayfa */
+  #homeStats{grid-template-columns:repeat(2,1fr)!important}
+  .home-card{padding:14px 12px}
+  .home-card-icon{font-size:1.2rem;margin-bottom:5px}
+  .home-card-title{font-size:0.78rem}
+  .home-card-desc{font-size:0.72rem}
+
+  /* Cümle kur araçları tam genişlik */
+  .struct-hint{font-size:0.78rem}
+  .cb-actions{flex-wrap:wrap}
+  .cb-actions .abtn{flex:1;justify-content:center;min-width:calc(50% - 4px)}
+
+  /* Süryanice klavye */
+  .sy-key{min-width:32px;height:32px;font-size:0.9rem}
+  .sy-kbd{padding:8px}
+
+  /* Arama */
+  .frow{gap:3px}
+  .fbtn{padding:4px 8px;font-size:7.5px;letter-spacing:1px}
+}
+
+/* ── Sabit alt navigasyon (sadece telefon) ── */
+@media(max-width:640px){
+  .tabs{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    background:var(--surf);
+    border-top:1px solid var(--brd);
+    z-index:100;
+    margin:0;
+    padding:4px 0 max(4px,env(safe-area-inset-bottom));
+    justify-content:space-around;
+    box-shadow:0 -2px 12px rgba(0,0,0,.08);
+  }
+  .tab{
+    flex:1;
+    display:flex;flex-direction:column;align-items:center;
+    padding:4px 2px 2px;
+    font-size:6.5px;
+    letter-spacing:0.5px;
+    border-bottom:none!important;
+    gap:2px;
+    min-width:0;
+    border-radius:0;
+  }
+  .tab::before{
+    content:attr(data-icon);
+    font-size:16px;
+    line-height:1;
+    display:block;
+  }
+  .tab.active{background:var(--pb);color:var(--acc)}
+  .app{padding-bottom:80px}
+}
+
+/* ── YAPI STİLLERİ ───────────────────────────── */
 .cb-section > *:not(.cb-title):not(.tbl-hdr){padding-left:20px;padding-right:20px}
 .cb-section > *:last-child{padding-bottom:20px}
 .cb-section > .cb-actions{padding:16px 20px 20px}
@@ -334,7 +490,6 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 .cb-section > #langHint{padding-top:14px}
 .cb-section > .gram-hint-box{margin-left:20px;margin-right:20px}
 
-/* ── ANA SAYFA ──────────────────────────────── */
 .home-card{padding:18px 20px;cursor:pointer;border-right:1px solid var(--brd-s);border-bottom:1px solid var(--brd-s);transition:background .2s}
 .home-card:hover{background:var(--surf2)}
 .home-card:nth-child(even){border-right:none}
@@ -347,15 +502,11 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 .home-stat-num{font-size:1.8rem;font-weight:800;color:var(--acc);line-height:1;margin-bottom:4px}
 .home-stat-lbl{font-family:var(--fm);font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--txt-d)}
 
-/* ── FAVORİLER ──────────────────────────────── */
 .fav-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;opacity:.3;transition:all .2s;line-height:1}
 .fav-btn:hover{opacity:.8;transform:scale(1.2)}
 .fav-btn.on{opacity:1;color:#f5a623}
 .fav-filter-btn{padding:5px 14px;font-family:var(--fm);font-size:8px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--brd);background:transparent;border-radius:6px;color:var(--txt-d);transition:all .2s}
 .fav-filter-btn.on{border-color:#f5a623;color:#f5a623;background:rgba(245,166,35,.08)}
-
-@media(max-width:800px){}
-@media(max-width:480px){}
 
 /* ── GÖRSEL EŞLEŞTİRME ──────────────────────── */
 #imgMatchModal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);padding:16px}
@@ -391,6 +542,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 .imgm-credit a{color:inherit;text-decoration:underline}
 .imgm-retry{font-family:var(--fm);font-size:9px;letter-spacing:1px;background:none;border:1.5px solid var(--brd);color:var(--txt-d);padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:10px;transition:all .2s}
 .imgm-retry:hover{border-color:var(--acc);color:var(--acc)}
+
 </style>
 </head>
 <body data-theme="kar">
@@ -446,12 +598,12 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('anasayfa',this)">🏠 Ana Sayfa</button>
-    <button class="tab" onclick="switchTab('sozluk',this)">📖 Sözlük</button>
-    <button class="tab" onclick="switchTab('flashcard',this)">🎴 Kelime Öğren</button>
-    <button class="tab" onclick="switchTab('cumle',this)">✏️ Cümle Kur</button>
-    <button class="tab" onclick="switchTab('notlar',this)">📋 Kurallar</button>
-    <button class="tab" onclick="switchTab('kaynaklar',this)">🔖 Kaynaklar</button>
+    <button class="tab active" data-icon="🏠" onclick="switchTab('anasayfa',this)">Ana Sayfa</button>
+    <button class="tab" data-icon="📖" onclick="switchTab('sozluk',this)">Sözlük</button>
+    <button class="tab" data-icon="🎴" onclick="switchTab('flashcard',this)">Öğren</button>
+    <button class="tab" data-icon="✏️" onclick="switchTab('cumle',this)">Cümle</button>
+    <button class="tab" data-icon="📋" onclick="switchTab('notlar',this)">Kurallar</button>
+    <button class="tab" data-icon="🔖" onclick="switchTab('kaynaklar',this)">Kaynaklar</button>
   </div>
 
   <!-- ANA SAYFA PANELİ -->
