@@ -359,7 +359,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
   #istatCards{grid-template-columns:1fr 1fr}
   .istat-bar-label{min-width:70px;font-size:0.78rem}
   .istat-bar-count{font-size:0.75rem;min-width:24px}
-  .istat-recent-row{flex-wrap:wrap;gap:4px}
+  .istat-recent-row{flex-wrap:nowrap;gap:6px;overflow:hidden}
+  .istat-recent-row span:last-child{display:none}
   .istat-num{font-size:1.6rem}
 
   /* Gramer ipucu */
@@ -368,6 +369,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
   /* Ana sayfa grid */
   #homeStats{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+  #homeStats>#hs-last-block{grid-column:1/-1}
+  #hs-last-grid{grid-template-columns:1fr 1fr}
   .home-stat-num{font-size:1.4rem}
   .home-stat-lbl{font-size:0.62rem}
 
@@ -429,6 +432,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 
   /* Ana sayfa */
   #homeStats{grid-template-columns:repeat(2,1fr)!important}
+  #homeStats>#hs-last-block{grid-column:1/-1}
+  #hs-last-grid{grid-template-columns:1fr}
   .home-card{padding:14px 12px}
   .home-card-icon{font-size:1.2rem;margin-bottom:5px}
   .home-card-title{font-size:0.78rem}
@@ -507,10 +512,6 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
 .fav-btn.on{opacity:1;color:#f5a623}
 .fav-filter-btn{padding:5px 14px;font-family:var(--fm);font-size:8px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--brd);background:transparent;border-radius:6px;color:var(--txt-d);transition:all .2s}
 .fav-filter-btn.on{border-color:#f5a623;color:#f5a623;background:rgba(245,166,35,.08)}
-.kaynak-fbtn{padding:6px 14px;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--brd);background:transparent;border-radius:6px;color:var(--txt-d);transition:all .2s;white-space:nowrap}
-.kaynak-fbtn:hover{border-color:var(--acc);color:var(--acc);background:var(--pb)}
-.kaynak-fbtn.active{border-color:var(--acc);color:var(--acc);background:var(--pb);font-weight:600}
-@media(max-width:480px){.kaynak-fbtn{padding:5px 10px;font-size:8px;letter-spacing:1px}}
 
 /* ── GÖRSEL EŞLEŞTİRME ──────────────────────── */
 #imgMatchModal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);padding:16px}
@@ -689,23 +690,23 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
     <div class="tbl-wrap" style="margin-bottom:16px">
       <div class="tbl-hdr"><span class="tbl-ttl">Özet</span></div>
       <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px" id="homeStats">
-        <!-- Son Eklenen — tam genişlik, üstte -->
-        <div class="home-stat" style="grid-column:1/-1;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px" id="hs-last-card">
-          <div id="hs-last-img" style="width:52px;height:52px;border-radius:8px;border:1px dashed var(--brd);background:var(--surf3);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--txt-d);opacity:.3">🔤</div>
-          <div style="flex:1;min-width:0">
-            <div class="home-stat-num" id="hs-last-tr" style="font-size:0.95rem;letter-spacing:0.3px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div>
-            <div class="home-stat-num" id="hs-last-sy" style="font-size:0.8rem;opacity:.7;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div>
-            <div class="home-stat-num" id="hs-last-en" style="font-size:0.78rem;opacity:.6;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div>
-            <div class="home-stat-lbl" style="margin-top:4px">Son Eklenen</div>
+      <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px" id="homeStats">
+        <!-- Son Eklenen 2 Kelime — tam genişlik, en üstte -->
+        <div style="grid-column:1/-1;background:var(--surf2);border-radius:10px;padding:12px 14px" id="hs-last-block">
+          <div style="font-family:var(--fm);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--txt-d);margin-bottom:10px">Son Eklenen</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="hs-last-grid">
+            <div style="color:var(--txt-d);font-style:italic;font-size:0.85rem;grid-column:1/-1">Yükleniyor...</div>
           </div>
         </div>
-        <!-- Diğer istatistikler -->
+        <!-- İstatistik kutuları -->
         <div class="home-stat"><div class="home-stat-num" id="hs-words">—</div><div class="home-stat-lbl">Kelime</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-today">—</div><div class="home-stat-lbl">Bugün Eklendi</div></div>
-        <div class="home-stat"><div class="home-stat-num" id="hs-week">—</div><div class="home-stat-lbl">Bu Hafta</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-notes">—</div><div class="home-stat-lbl">Gramer Kuralı</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-ref">—</div><div class="home-stat-lbl">Referans Girişi</div></div>
+        <div class="home-stat"><div class="home-stat-num" id="hs-week">—</div><div class="home-stat-lbl">Bu Hafta</div></div>
         <div class="home-stat"><div class="home-stat-num" id="hs-types">—</div><div class="home-stat-lbl">Kelime Türü</div></div>
+      </div>
+
       </div>
     </div>
 
@@ -1025,18 +1026,8 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <span class="tbl-ttl">🔖 Kaynaklar</span>
         <button class="abtn hl edit-only" onclick="showKaynakModal()" style="display:none"><span>＋</span>Kaynak Ekle</button>
       </div>
-      <div style="padding:14px 16px 0">
-        <p style="font-size:0.9rem;color:var(--txt-d);line-height:1.8;margin-bottom:12px">Süryanice öğrenimine yardımcı dosyalar, videolar ve bağlantılar.</p>
-        <!-- Filtre barı -->
-        <div id="kaynakFilterBar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-          <button class="kaynak-fbtn active" onclick="setKaynakFilter('hepsi',this)">Tümü</button>
-          <button class="kaynak-fbtn" onclick="setKaynakFilter('video',this)">▶ Video</button>
-          <button class="kaynak-fbtn" onclick="setKaynakFilter('link',this)">🔗 Bağlantı</button>
-          <button class="kaynak-fbtn" onclick="setKaynakFilter('dosya',this)">📄 Dosya</button>
-          <span id="kaynakFilterCount" style="margin-left:auto;font-family:var(--fm);font-size:9px;color:var(--txt-d);align-self:center;letter-spacing:1px"></span>
-        </div>
-      </div>
-      <div style="padding:0 16px 16px">
+      <div style="padding:16px 20px">
+        <p style="font-size:0.9rem;color:var(--txt-d);line-height:1.8;margin-bottom:16px">Süryanice öğrenimine yardımcı dosyalar, videolar ve bağlantılar.</p>
         <div id="kaynakList"></div>
         <div id="kaynakEmpty" style="text-align:center;padding:32px;color:var(--txt-d);opacity:.5;font-style:italic">Henüz kaynak eklenmemiş.</div>
       </div>
@@ -2977,14 +2968,6 @@ function showSedraStatus(found, glosses, category, syWord){
 /* ── KAYNAKLAR ─────────────────────────────── */
 /* ── KAYNAKLAR (Supabase) ─────────────────── */
 let kaynaklar=[];
-let activeKaynakFilter='hepsi';
-
-function setKaynakFilter(f, el){
-  activeKaynakFilter=f;
-  document.querySelectorAll('.kaynak-fbtn').forEach(b=>b.classList.remove('active'));
-  if(el) el.classList.add('active');
-  renderKaynaklar();
-}
 
 async function sbGetKaynaklar(){return sbFetch('/rest/v1/kaynaklar?select=*&order=id.asc');}
 async function sbAddKaynak(k){return sbFetch('/rest/v1/kaynaklar','POST',{title:k.title,url:k.url,aciklama:k.aciklama||'',type:k.type||'link'});}
@@ -3008,44 +2991,15 @@ function saveKaynaklar(){/* Supabase ile çalışıyor, bu fonksiyon artık kull
 function renderKaynaklar(){
   const list=document.getElementById('kaynakList');
   const empty=document.getElementById('kaynakEmpty');
-  const countEl=document.getElementById('kaynakFilterCount');
   if(!list) return;
-  if(!kaynaklar.length){list.innerHTML='';if(empty)empty.style.display='block';if(countEl)countEl.textContent='';return;}
+  if(!kaynaklar.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
   if(empty)empty.style.display='none';
-
-  // Filtre uygula
-  const filtered=activeKaynakFilter==='hepsi'
-    ?kaynaklar
-    :kaynaklar.filter(k=>{
-        const isYoutube=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
-        if(activeKaynakFilter==='video') return isYoutube||k.type==='video';
-        if(activeKaynakFilter==='link')  return !isYoutube&&k.type==='link';
-        if(activeKaynakFilter==='dosya') return k.type==='dosya';
-        return true;
-      });
-
-  // Sayacı güncelle
-  if(countEl) countEl.textContent=filtered.length+' / '+kaynaklar.length;
-
-  // Sonuç yoksa
-  if(!filtered.length){
-    list.innerHTML='<div style="text-align:center;padding:24px;color:var(--txt-d);opacity:.5;font-style:italic">Bu türde kaynak bulunamadı.</div>';
-    return;
-  }
-
-  // Renk haritası türe göre sol kenarlık
-  const typeColors={video:'#e05252',link:'var(--acc)',dosya:'#5a9a6a'};
-
-  list.innerHTML=filtered.map((k,i)=>{
-    const realIdx=kaynaklar.indexOf(k);
+  list.innerHTML=kaynaklar.map((k,i)=>{
     const isYoutube=k.url&&(k.url.includes('youtube.com')||k.url.includes('youtu.be'));
     const isVideo=isYoutube||k.type==='video';
-    const isDosya=k.type==='dosya';
-    const icon=isVideo?'▶':isDosya?'📄':'🔗';
-    const typeLabel=isVideo?'Video':isDosya?'Dosya':'Bağlantı';
-    const borderColor=isVideo?'#e05252':isDosya?'#5a9a6a':'var(--acc)';
-    const badgeBg=isVideo?'rgba(224,82,82,.1)':isDosya?'rgba(90,154,106,.1)':'var(--pb)';
-    const badgeColor=isVideo?'#e05252':isDosya?'#5a9a6a':'var(--acc)';
+    const icon=isVideo?'▶':'📄';
+    const typeLabel=isVideo?'Video':'Dosya/Link';
+    // YouTube embed ID
     let embedHtml='';
     if(isYoutube&&k.url){
       const match=k.url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -3056,21 +3010,21 @@ function renderKaynaklar(){
         </div>`;
       }
     }
-    return `<div style="background:var(--surf);border:1px solid var(--brd-s);border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:4px solid ${borderColor}">
+    return `<div style="background:var(--surf);border:1px solid var(--brd-s);border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--acc)">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-            <span style="font-size:1.1rem;flex-shrink:0">${icon}</span>
-            <span style="font-weight:700;font-size:0.95rem;color:var(--txt);word-break:break-word">${k.title||'Başlıksız'}</span>
-            <span style="font-family:var(--fm);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;background:${badgeBg};color:${badgeColor};border-radius:20px;flex-shrink:0">${typeLabel}</span>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:1.1rem">${icon}</span>
+            <span style="font-weight:700;font-size:0.95rem;color:var(--txt)">${k.title||'Başlıksız'}</span>
+            <span style="font-family:var(--fm);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;background:var(--pb);color:var(--acc);border-radius:20px">${typeLabel}</span>
           </div>
-          ${k.desc?`<div style="font-size:0.85rem;color:var(--txt-d);margin-bottom:8px;line-height:1.6">${k.desc}</div>`:''}
-          ${k.url?`<a href="${k.url}" target="_blank" style="font-family:var(--fm);font-size:11px;color:var(--acc);word-break:break-all;opacity:.8;display:block">${k.url}</a>`:''}
+          ${k.desc?`<div style="font-size:0.85rem;color:var(--txt-d);margin-bottom:8px">${k.desc}</div>`:''}
+          ${k.url?`<a href="${k.url}" target="_blank" style="font-family:var(--fm);font-size:11px;color:var(--acc);word-break:break-all;opacity:.8">${k.url}</a>`:''}
           ${embedHtml}
         </div>
         <div class="edit-only" style="display:${editMode?'flex':'none'};gap:4px;flex-shrink:0">
-          <button onclick="editKaynak(${realIdx})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✏️</button>
-          <button onclick="deleteKaynak(${realIdx})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px;color:var(--bad)" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
+          <button onclick="editKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✏️</button>
+          <button onclick="deleteKaynak(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:3px 7px;border-radius:4px;color:var(--bad)" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
         </div>
       </div>
     </div>`;
@@ -4167,23 +4121,30 @@ function renderHomeStats(){
   set('hs-week', words.filter(w=>w.date>=thisWeek).length);
   set('hs-types', types);
 
-  const sortedW = words.slice().sort((a,b)=>b.id-a.id);
-  const lastW = sortedW.find(w=>w.tr&&w.tr.trim()!=='');
-  set('hs-last-tr', lastW?.tr||'—');
-  set('hs-last-sy', lastW?.sy||'—');
-  set('hs-last-en', lastW?.en||'—');
-
-  const imgEl=document.getElementById('hs-last-img');
-  if(imgEl){
-    if(lastW?.imgUrl){
-      imgEl.innerHTML='<img src="'+lastW.imgUrl+'" alt="'+(lastW.tr||'')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover">';
-      imgEl.style.opacity='1';
-      imgEl.style.border='1px solid var(--brd)';
-    } else {
-      imgEl.innerHTML='🔤';
-      imgEl.style.opacity='.3';
-      imgEl.style.border='1px dashed var(--brd)';
+  // Son eklenen 2 kelime — görsellerle
+  const grid=document.getElementById('hs-last-grid');
+  if(grid){
+    const sortedW=words.slice().sort((a,b)=>b.id-a.id);
+    const lastTwo=sortedW.filter(w=>w.tr&&w.tr.trim()!=='').slice(0,2);
+    if(!lastTwo.length){
+      grid.innerHTML='<div style="color:var(--txt-d);font-style:italic;font-size:0.85rem;grid-column:1/-1;opacity:.5">Henüz kelime eklenmemiş.</div>';
+      return;
     }
+    grid.innerHTML=lastTwo.map(w=>{
+      const sy=w.sy||'';
+      const syScript=sy.indexOf('(')>-1?sy.substring(0,sy.indexOf('(')).trim():sy.trim();
+      const syTranslit=sy.indexOf('(')>-1?sy.substring(sy.indexOf('(')+1).replace(')','').trim():'';
+      const imgPart=w.imgUrl
+        ?`<img src="${w.imgUrl}" alt="${w.tr||''}" loading="lazy" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px;border:1px solid var(--brd);display:block;margin-bottom:8px">`
+        :`<div style="width:100%;aspect-ratio:16/9;border-radius:7px;border:1px dashed var(--brd);background:var(--surf3);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:8px;opacity:.35">🔤</div>`;
+      return `<div style="background:var(--surf);border-radius:8px;padding:10px;border:1px solid var(--brd-s)">
+        ${imgPart}
+        <div style="font-size:0.9rem;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.tr||'—'}</div>
+        ${syScript?`<div style="font-size:0.85rem;color:var(--acc);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${syScript}</div>`:''}
+        ${syTranslit?`<div style="font-family:var(--fm);font-size:0.72rem;color:var(--acc-d);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${syTranslit}</div>`:''}
+        ${w.en?`<div style="font-size:0.78rem;color:var(--txt-d);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.en}</div>`:''}
+      </div>`;
+    }).join('');
   }
 }
 
