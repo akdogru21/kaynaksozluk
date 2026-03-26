@@ -1358,8 +1358,8 @@ async function sbFetch(path,method='GET',body=null){
   return txt?JSON.parse(txt):[];
 }
 async function sbGetWords(){return sbFetch('/rest/v1/words?select=*&order=id.asc');}
-async function sbAddWord(w){return sbFetch('/rest/v1/words','POST',{id:w.id,tr:w.tr,sy:w.sy,en:w.en,type:w.type,date:w.date});}
-async function sbUpdateWord(id,w){return sbFetch('/rest/v1/words?id=eq.'+id,'PATCH',{tr:w.tr,sy:w.sy,en:w.en,type:w.type});}
+async function sbAddWord(w){return sbFetch('/rest/v1/words','POST',{id:w.id,tr:w.tr,sy:w.sy,en:w.en,type:w.type,date:w.date,img_url:w.imgUrl||null});}
+async function sbUpdateWord(id,w){return sbFetch('/rest/v1/words?id=eq.'+id,'PATCH',{tr:w.tr,sy:w.sy,en:w.en,type:w.type,img_url:w.imgUrl||null});}
 async function sbDeleteWord(id){return sbFetch('/rest/v1/words?id=eq.'+id,'DELETE');}
 async function sbGetNotes(){return sbFetch('/rest/v1/notes?select=*&order=id.asc');}
 async function sbAddNote(n){return sbFetch('/rest/v1/notes','POST',{title:n.title,body:n.body,cat:n.cat});}
@@ -1381,7 +1381,7 @@ async function initCloud(){
         save();
       } else if(ws.length>=words.length){
         // Load from cloud only if cloud has more or equal words
-        words=ws.map(w=>({id:w.id,sbId:w.id,tr:w.tr||'',sy:w.sy||'',en:w.en||'',type:w.type||'',date:w.date||today,created_at:w.created_at||''}));
+        words=ws.map(w=>({id:w.id,sbId:w.id,tr:w.tr||'',sy:w.sy||'',en:w.en||'',type:w.type||'',date:w.date||today,imgUrl:w.img_url||'',created_at:w.created_at||''}));
         nextId=Math.max(...words.map(w=>w.id))+1;
         save();
       }
