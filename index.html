@@ -1277,6 +1277,8 @@ async function initCloud(){
         saveNotes();
         renderNotes();
       }
+      // Load kaynaklar from cloud
+      await loadKaynaklar();
       useCloud=true;
       document.getElementById('cloudInd').textContent='☁ Bulut bağlı';
       document.getElementById('cloudInd').style.color='#3a9a5a';
@@ -1729,7 +1731,7 @@ function switchTab(id, el){
   if(id==='referans'){renderRef();}
   if(id==='istatistik') renderIstatistik();
   if(id==='flashcard'){document.getElementById('fcArea').style.display='none';document.getElementById('fcResult').style.display='none';}
-  if(id==='kaynaklar'){renderKaynaklar();}
+  if(id==='kaynaklar'){loadKaynaklar();}
   if(id==='anasayfa'){renderHomeStats();}
   const iconBtn=document.getElementById('inb-'+id);
   if(iconBtn) iconBtn.classList.add('active');
@@ -2530,14 +2532,27 @@ function showSedraStatus(found, glosses, category, syWord){
 
 
 /* ── KAYNAKLAR ─────────────────────────────── */
-const KAYNAK_KEY='sozluk_kaynaklar_v1';
+/* ── KAYNAKLAR (Supabase) ─────────────────── */
 let kaynaklar=[];
 
-function loadKaynaklar(){
-  try{const r=localStorage.getItem(KAYNAK_KEY);if(r)kaynaklar=JSON.parse(r);}catch(e){kaynaklar=[];}
+async function sbGetKaynaklar(){return sbFetch('/rest/v1/kaynaklar?select=*&order=id.asc');}
+async function sbAddKaynak(k){return sbFetch('/rest/v1/kaynaklar','POST',{title:k.title,url:k.url,aciklama:k.aciklama||'',type:k.type||'link'});}
+async function sbUpdateKaynak(id,k){return sbFetch('/rest/v1/kaynaklar?id=eq.'+id,'PATCH',{title:k.title,url:k.url,aciklama:k.aciklama||'',type:k.type||'link'});}
+async function sbDeleteKaynak(id){return sbFetch('/rest/v1/kaynaklar?id=eq.'+id,'DELETE');}
+
+async function loadKaynaklar(){
+  try{
+    const rows=await sbGetKaynaklar();
+    if(rows&&Array.isArray(rows)){
+      kaynaklar=rows.map(k=>({id:k.id,title:k.title||'',url:k.url||'',desc:k.aciklama||'',type:k.type||'link'}));
+    }
+  }catch(e){
+    console.error('Kaynaklar yüklenemedi:',e);
+    kaynaklar=[];
+  }
   renderKaynaklar();
 }
-function saveKaynaklar(){try{localStorage.setItem(KAYNAK_KEY,JSON.stringify(kaynaklar));}catch(e){}}
+function saveKaynaklar(){/* Supabase ile çalışıyor, bu fonksiyon artık kullanılmıyor */}
 
 function renderKaynaklar(){
   const list=document.getElementById('kaynakList');
@@ -2604,19 +2619,29 @@ function saveKaynak(){
   const isYt=url.includes('youtube.com')||url.includes('youtu.be');
   const finalType=isYt?'video':type;
   if(editingKaynakIdx>=0){
-    kaynaklar[editingKaynakIdx]={title,url,desc,type:finalType};
+    const k=kaynaklar[editingKaynakIdx];
+    const updated={title,url,aciklama:desc,type:finalType};
+    sbUpdateKaynak(k.id,updated)
+      .then(()=>{k.title=title;k.url=url;k.desc=desc;k.type=finalType;renderKaynaklar();showToast('✦ Kaynak güncellendi');})
+      .catch(e=>{console.error(e);showToast('⚠ Güncelleme başarısız');});
   } else {
-    kaynaklar.push({title,url,desc,type:finalType});
+    sbAddKaynak({title,url,aciklama:desc,type:finalType})
+      .then(res=>{
+        if(res&&res[0]) kaynaklar.push({id:res[0].id,title,url,desc,type:finalType});
+        renderKaynaklar();showToast('✦ Kaynak kaydedildi');
+      })
+      .catch(e=>{console.error(e);showToast('⚠ Kaynak eklenemedi');});
   }
-  saveKaynaklar();renderKaynaklar();closeKaynakModal();
-  showToast('✦ Kaynak kaydedildi');
+  closeKaynakModal();
 }
 function editKaynak(i){if(!requireAuth())return;showKaynakModal(i);}
 function deleteKaynak(i){
   if(!requireAuth())return;
   if(!confirm('Bu kaynak silinecek. Emin misiniz?')) return;
-  kaynaklar.splice(i,1);
-  saveKaynaklar();renderKaynaklar();showToast('Kaynak silindi');
+  const k=kaynaklar[i];
+  sbDeleteKaynak(k.id)
+    .then(()=>{kaynaklar.splice(i,1);renderKaynaklar();showToast('Kaynak silindi');})
+    .catch(e=>{console.error(e);showToast('⚠ Silinemedi');});
 }
 
 /* ── REFERANS ─────────────────────────────── */
