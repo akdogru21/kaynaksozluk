@@ -87,8 +87,7 @@ header{text-align:center;padding:48px 0 30px;border-bottom:1px solid var(--brd);
 .ref-hdr:hover .ref-title{color:var(--acc)}
 .ref-title{font-family:var(--fb);font-size:13px;color:var(--txt);font-weight:700}
 .ref-arrow{font-size:11px;color:var(--acc-d);transition:transform .3s;display:inline-block}
-.ref-body{transition:opacity .3s;opacity:1}
-.ref-body.closed{max-height:0;overflow:hidden;opacity:0}
+.ref-body{overflow:hidden;transition:max-height .35s ease,opacity .3s;max-height:9000px;opacity:1}
 .ref-body.closed{max-height:0;opacity:0}
 .ref-table{width:100%;border-collapse:collapse;font-size:0.95rem}
 .ref-table th{padding:9px 14px;text-align:left;font-family:var(--fm);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--acc-d);border-bottom:1px solid var(--brd);background:var(--surf2);font-weight:600}
@@ -161,8 +160,8 @@ header{text-align:center;padding:48px 0 30px;border-bottom:1px solid var(--brd);
 .tbl-wrap{background:var(--surf);border:1px solid var(--brd-s);border-radius:10px;overflow:hidden;transition:background .35s}
 .tbl-hdr{cursor:pointer}
 .tbl-hdr:hover .tbl-ttl{color:var(--acc)}
-.tscroll{transition:opacity .3s;overflow-x:auto;-webkit-overflow-scrolling:touch;opacity:1}
-.tscroll.collapsed{max-height:0;overflow:hidden;opacity:0}
+.tscroll{transition:max-height .35s ease,opacity .3s;overflow:hidden;max-height:9000px;opacity:1;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tscroll.collapsed{max-height:0;opacity:0}
 .tbl-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--brd-s);background:var(--surf2);transition:background .35s;cursor:pointer;user-select:none}
 .tbl-ttl{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--acc-d)}
 .res-lbl{font-family:var(--fm);font-size:9px;color:var(--txt-d)}
@@ -1280,6 +1279,17 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       <button class="btn btn-p" onclick="saveEdit()">Kaydet</button>
       <button class="btn btn-s" onclick="closeEdit()">İptal</button>
     </div>
+    <!-- Görsel Bölümü -->
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--brd-s)">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--acc-d);margin-bottom:10px">Görsel</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div id="edit-img-preview" style="width:72px;height:72px;border-radius:8px;border:1.5px dashed var(--brd);background:var(--surf2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--txt-d);opacity:.4">🔤</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="abtn" onclick="editWordOpenImgSearch()" id="edit-img-change-btn" style="font-size:8px;padding:7px 12px"><span>🖼</span><span id="edit-img-btn-label">Görsel Ekle</span></button>
+          <button class="abtn" onclick="editWordRemoveImg()" id="edit-img-remove-btn" style="font-size:8px;padding:7px 12px;display:none;border-color:rgba(180,60,60,.3);color:rgba(200,80,80,.8)"><span>✕</span>Görseli Kaldır</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <!-- API Key Modal -->
@@ -1412,7 +1422,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
       </div>
     </div>
     <div class="imgm-footer">
-      <button class="imgm-skip" onclick="imgModalSkip()">Görselsiz Kaydet</button>
+      <button class="imgm-skip" id="imgm-skip-btn" onclick="imgModalSkip()">Görselsiz Kaydet</button>
       <button class="imgm-confirm" id="imgm-confirm" onclick="imgModalConfirm()">✓ Bu Görselle Kaydet</button>
     </div>
     <div class="imgm-credit">Görseller <a href="https://unsplash.com" target="_blank">Unsplash</a> kaynaklıdır</div>
@@ -2267,11 +2277,12 @@ function clearSentence(){
 
 
 let editingId=null;
+let _editImgUrl=null; // düzenleme sırasında seçili/mevcut görsel
+
 function editWord(id){
   const w=words.find(x=>x.id===id);
   if(!w) return;
   editingId=id;
-  // Parse sy and transliteration
   const syMatch=(w.sy||'').match(/^([^(]*)\s*(?:\(([^)]*)\))?/);
   const syBase=syMatch?syMatch[1].trim():'';
   const syTranslit=syMatch&&syMatch[2]?syMatch[2].trim():'';
@@ -2280,14 +2291,65 @@ function editWord(id){
   document.getElementById('edit_tr2').value=syTranslit;
   document.getElementById('edit_en').value=w.en||'';
   document.getElementById('edit_type').value=w.type||'';
+  // Görsel önizleme
+  _editImgUrl=w.imgUrl||null;
+  _updateEditImgPreview();
   const modal=document.getElementById('editModal');
   modal.style.display='flex';
   setTimeout(()=>document.getElementById('edit_tr').focus(),100);
 }
+
+function _updateEditImgPreview(){
+  const preview=document.getElementById('edit-img-preview');
+  const removeBtn=document.getElementById('edit-img-remove-btn');
+  const btnLabel=document.getElementById('edit-img-btn-label');
+  if(!preview) return;
+  if(_editImgUrl){
+    preview.innerHTML='<img src="'+_editImgUrl+'" style="width:100%;height:100%;object-fit:cover" loading="lazy">';
+    preview.style.opacity='1';
+    preview.style.border='1.5px solid var(--brd)';
+    if(removeBtn) removeBtn.style.display='flex';
+    if(btnLabel) btnLabel.textContent='Görseli Değiştir';
+  } else {
+    preview.innerHTML='🔤';
+    preview.style.opacity='.4';
+    preview.style.border='1.5px dashed var(--brd)';
+    if(removeBtn) removeBtn.style.display='none';
+    if(btnLabel) btnLabel.textContent='Görsel Ekle';
+  }
+}
+
+function editWordOpenImgSearch(){
+  // Görsel modal sistemini düzenleme modu için aç
+  const w=words.find(x=>x.id===editingId);
+  if(!w) return;
+  _editImgPending=true;
+  const skipBtn=document.getElementById('imgm-skip-btn');
+  if(skipBtn) skipBtn.textContent='Vazgeç';
+  const q=_imgQuery(w.en||w.tr||'');
+  document.getElementById('imgm-tr-label').textContent=w.tr||'';
+  document.getElementById('imgm-en-label').textContent=q?'🔍 "'+q+'" olarak aranıyor':'';
+  document.getElementById('imgm-confirm').classList.remove('ready');
+  document.getElementById('imgm-grid').style.display='none';
+  document.getElementById('imgm-grid').innerHTML='';
+  document.getElementById('imgm-err').style.display='none';
+  document.getElementById('imgm-loading').style.display='block';
+  document.getElementById('imgMatchModal').classList.add('open');
+  _fetchImages(q||w.tr||'');
+}
+
+function editWordRemoveImg(){
+  _editImgUrl=null;
+  _updateEditImgPreview();
+}
+
 function closeEdit(){
   document.getElementById('editModal').style.display='none';
   editingId=null;
+  _editImgUrl=null;
+  _editImgPending=false;
 }
+
 function saveEdit(){if(!requireAuth())return;
   if(!editingId) return;
   const w=words.find(x=>x.id===editingId);
@@ -2298,8 +2360,9 @@ function saveEdit(){if(!requireAuth())return;
   w.sy=syRaw&&tr2?`${syRaw} (${tr2})`:syRaw||tr2;
   w.en=document.getElementById('edit_en').value.trim();
   w.type=document.getElementById('edit_type').value;
+  w.imgUrl=_editImgUrl||'';
   if(useCloud) sbUpdateWord(w.sbId||w.id,w).catch(e=>console.error(e));
-  save();render();closeEdit();showToast('✦ Kelime güncellendi');
+  save();render();renderHomeStats();closeEdit();showToast('✦ Kelime güncellendi');
 }
 function insCharEdit(ch){
   const el=document.getElementById('edit_tr2');
@@ -4194,6 +4257,7 @@ function renderHomeStats(){
 /* Kaynak 2: Pixabay (ücretsiz key, fallback)              */
 let _imgPending=null;
 let _imgSelected=null;
+let _editImgPending=false; // düzenleme modundan açıldı mı
 
 const PIXABAY_KEY_NAME='sozluk_pixabay_key';
 function getPixabayKey(){return localStorage.getItem(PIXABAY_KEY_NAME)||'';}
@@ -4221,6 +4285,9 @@ function _commitWord(imgUrl){
 
 function openImgModal(tr, en){
   _imgSelected=null;
+  _editImgPending=false;
+  const skipBtn=document.getElementById('imgm-skip-btn');
+  if(skipBtn) skipBtn.textContent='Görselsiz Kaydet';
   const q=_imgQuery(en||tr);
   document.getElementById('imgm-tr-label').textContent=tr||'';
   document.getElementById('imgm-en-label').textContent=q?'🔍 "'+q+'" olarak aranıyor':'';
@@ -4317,11 +4384,26 @@ function imgModalRetry(){
 function imgModalConfirm(){
   if(!_imgSelected){showToast('⚠ Önce bir görsel seçin');return;}
   document.getElementById('imgMatchModal').classList.remove('open');
-  _commitWord(_imgSelected.url);
+  if(_editImgPending){
+    // Düzenleme modunda — görseli önizlemeye yansıt, kaydetme yok
+    _editImgUrl=_imgSelected.url;
+    _editImgPending=false;
+    _imgSelected=null;
+    _updateEditImgPreview();
+    showToast('🖼 Görsel seçildi — kaydetmek için Kaydet butonuna basın');
+  } else {
+    _commitWord(_imgSelected.url);
+  }
 }
 function imgModalSkip(){
   document.getElementById('imgMatchModal').classList.remove('open');
-  _commitWord(null);
+  if(_editImgPending){
+    // Düzenleme modunda iptal — hiçbir şey değiştirme
+    _editImgPending=false;
+    _imgSelected=null;
+  } else {
+    _commitWord(null);
+  }
 }
 
 /* ── GÖRSEL AYAR MODALİ ── */
