@@ -554,7 +554,7 @@ mark{background:var(--pb);color:var(--acc);border-radius:2px;padding:0 1px;font-
         <div class="igroup">
           <label class="ilabel">Süryanice</label>
           <div style="position:relative">
-            <input type="text" class="winput" id="inp_sy" placeholder="ܣܘܪܝܝܐ ..." style="padding-right:90px">
+            <input type="text" class="winput" id="inp_sy" placeholder="ܣܘܪܝܝܐ ..." style="padding-right:90px" oninput="scheduleAutoFetchSy()">
             <button type="button" onclick="fetchSyriac()" id="fetchSyBtn" class="chbtn" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;padding:3px 8px;white-space:nowrap">ܐ Getir</button>
           </div>
         </div>
@@ -2377,163 +2377,166 @@ function saveApiKey(){
 }
 document.getElementById('apiKeyModal').addEventListener('click',function(e){if(e.target===this)closeApiKeyModal();});
 
-let autoFetchTimer=null;
-function scheduleAutoFetch(){
-  clearTimeout(autoFetchTimer);
-  const val=document.getElementById('inp_tr').value.trim();
-  if(!val){
-    // Türkçe temizlendiyse İngilizce ve SEDRA durumunu da temizle
-    document.getElementById('inp_en').value='';
-    const sd=document.getElementById('sedra-status'); if(sd) sd.remove();
+/* ══════════════════════════════════════════════════
+   AKILLI OTOMATİK DOLDURMA SİSTEMİ
+   Her alan için: kullanıcı yazdığı dilde öncelik,
+   boş olan diğer alanları otomatik doldur.
+   TR → EN + SY + TR2
+   EN → TR + SY + TR2
+   SY (alfabe) → TR + EN + TR2
+   TR2 (translit) → SY (anlık) + TR + EN (API)
+   ══════════════════════════════════════════════════ */
+
+let _smartTimer=null;
+
+function getF(id){ return (document.getElementById(id)||{}).value||''; }
+function setF(id,v){ const el=document.getElementById(id); if(el&&!el.value.trim()) el.value=v; }
+
+/* Herhangi bir alanda input olduğunda çağrılır */
+function scheduleAutoFetch(){ _scheduleSmartFill('tr'); }
+function scheduleAutoFetchEn(){ _scheduleSmartFill('en'); }
+function scheduleAutoFetchTranslit(){ _scheduleSmartFill('tr2'); }
+function scheduleAutoFetchSy(){ _scheduleSmartFill('sy'); }
+
+function _scheduleSmartFill(sourceLang){
+  clearTimeout(_smartTimer);
+
+  /* Transliterasyondan Süryanice anlık üret (gecikme yok) */
+  if(sourceLang==='tr2'){
+    const tr2val=getF('inp_tr2');
+    if(tr2val && !getF('inp_sy')){
+      const syGuess=latinToSyriac(tr2val);
+      if(syGuess) document.getElementById('inp_sy').value=syGuess;
+    }
+  }
+
+  _smartTimer=setTimeout(()=>_doSmartFill(sourceLang), 800);
+}
+
+async function _doSmartFill(sourceLang){
+  const tr=getF('inp_tr'), en=getF('inp_en'),
+        sy=getF('inp_sy'), tr2=getF('inp_tr2');
+
+  /* Kaynak alanın değeri yoksa bir şey yapma */
+  const src={tr,en,sy,tr2}[sourceLang]||
+             (sourceLang==='sy'?sy:sourceLang==='tr2'?tr2:sourceLang==='tr'?tr:en);
+  if(!src.trim()) return;
+
+  const key=getClaudeKey();
+
+  /* ─── Claude API varsa: tüm boş alanları tek seferde doldur ─── */
+  if(key){
+    const btn=document.getElementById('fetchSyBtn');
+    if(btn){btn.textContent='⏳';btn.disabled=true;}
+    try{
+      /* Prompt'u kaynağa göre özelleştir */
+      let queryWord=src;
+      /* Süryanice alfabe geldiyse script bildir */
+      const isScript=/[\u0700-\u074F]/.test(src);
+      const isTranslit=(sourceLang==='tr2');
+      const langHint=sourceLang==='tr'?'Türkçe':
+                     sourceLang==='en'?'İngilizce':
+                     isScript?'Süryanice (alfabe)':
+                     'Süryanice (transliterasyon)';
+
+      const data=await _askClaudeSmart(queryWord, langHint);
+
+      /* Boş alanları doldur — kullanıcının yazdığına dokunma */
+      if(data.tr && !tr) setF('inp_tr', data.tr);
+      if(data.en && !en) setF('inp_en', data.en);
+      if(data.type && !getF('inp_type')) setF('inp_type', data.type);
+
+      /* Süryanice alfabe */
+      const syScript=(data.sy||'').split('(')[0].trim();
+      if(syScript && !sy) setF('inp_sy', syScript);
+
+      /* Transliterasyon */
+      if(!tr2){
+        const autoTr2=syScript ? syriacToLatin(syScript) : '';
+        if(autoTr2) setF('inp_tr2', autoTr2);
+      }
+
+      /* SEDRA doğrulama */
+      const finalSy=getF('inp_sy');
+      if(finalSy) verifySedra(finalSy);
+
+    }catch(e){ console.warn('SmartFill API error:', e); }
+    finally{
+      if(btn){btn.textContent='ܐ Getir';btn.disabled=false;}
+    }
     return;
   }
-  // Yeni kelime yazılınca İngilizce'yi temizle (sadece kullanıcı yazmadıysa)
-  autoFetchTimer=setTimeout(()=>{
-    // İngilizce ve Süryanice eş zamanlı çek
-    fetchEnglish(val);
-    if(getClaudeKey() && !document.getElementById('inp_sy').value.trim()){
-      fetchSyriacAuto(val, 'tr');
-    }
-  },900);
+
+  /* ─── Claude API yoksa: MyMemory ile TR↔EN ─── */
+  if(sourceLang==='tr' && !en){
+    try{
+      const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(src)+'&langpair=tr|en');
+      const d=await r.json();
+      const t=d?.responseData?.translatedText;
+      if(t&&t.toLowerCase()!==src.toLowerCase()) setF('inp_en',t);
+    }catch(e){}
+  }
+  if(sourceLang==='en' && !tr){
+    try{
+      const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(src)+'&langpair=en|tr');
+      const d=await r.json();
+      const t=d?.responseData?.translatedText;
+      if(t&&t.toLowerCase()!==src.toLowerCase()) setF('inp_tr',t);
+    }catch(e){}
+  }
 }
 
-async function fetchEnglish(word){
-  const enEl=document.getElementById('inp_en');
-  if(!enEl||enEl.value.trim()) return;
-  try{
-    const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=tr|en');
-    const d=await r.json();
-    const t=d?.responseData?.translatedText;
-    if(t&&t.toLowerCase()!==word.toLowerCase()) enEl.value=t;
-  }catch(e){}
+/* Kaynağa göre özelleştirilmiş Claude sorgusu */
+async function _askClaudeSmart(word, langHint){
+  const CLAUDE_KEY=getClaudeKey();
+  if(!CLAUDE_KEY) throw new Error('API key yok');
+  const prompt=`Sen Süryanice-Türkçe-İngilizce sözlük uzmanısın. Verilen kelime ${langHint} dilinde: "${word}"\nBu kelimenin tüm dillerdeki en yaygın Klasik Süryanice karşılığını ver. Sadece JSON formatında yanıt ver, başka hiçbir şey yazma: {"tr":"Türkçe karşılık","sy":"ܣܘܪܝܝܐ","en":"English meaning","type":"isim/fiil/sıfat/zarf/zamir/edat/bağlaç"}`;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'x-api-key':CLAUDE_KEY,
+      'content-type':'application/json',
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:200,temperature:0,messages:[{role:'user',content:prompt}]})
+  });
+  const data=await r.json();
+  if(!r.ok) throw new Error((data.error&&data.error.message)||'API '+r.status);
+  if(!data.content||!data.content[0]) throw new Error('Geçersiz yanıt');
+  let text=data.content[0].text.trim().replace(/```json|```/g,'').trim();
+  const m=text.match(/\{[\s\S]*\}/);
+  if(!m) throw new Error('JSON yok');
+  return JSON.parse(m[0]);
 }
 
-let autoFetchEnTimer=null;
-function scheduleAutoFetchEn(){
-  clearTimeout(autoFetchEnTimer);
-  const val=document.getElementById('inp_en').value.trim();
-  if(!val) return;
-  autoFetchEnTimer=setTimeout(()=>{
-    fetchTurkish(val);
-    if(getClaudeKey() && !document.getElementById('inp_sy').value.trim()){
-      fetchSyriacAuto(val, 'en');
-    }
-  },900);
-}
-
-async function fetchTurkish(word){
-  const trEl=document.getElementById('inp_tr');
-  if(!trEl||trEl.value.trim()) return;
-  try{
-    const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=en|tr');
-    const d=await r.json();
-    const t=d?.responseData?.translatedText;
-    if(t&&t.toLowerCase()!==word.toLowerCase()) trEl.value=t;
-  }catch(e){}
-}
-
+/* ── ܐ GETİR butonu (manuel tetik) ─────────── */
 async function fetchSyriac(){
   const claudeKey=getClaudeKey();
   if(!claudeKey){showToast('⚠ Önce API Key girin (🔑 butonu)');return;}
-  const word=document.getElementById('inp_tr').value.trim()||document.getElementById('inp_en').value.trim();
-  if(!word){showToast('⚠ Önce Türkçe veya İngilizce yazın');return;}
-  // Süryanice zaten doluysa sadece SEDRA doğrulaması yap
-  const existingSy=document.getElementById('inp_sy').value.trim();
-  if(existingSy){
-    showToast('✦ SEDRA doğrulanıyor...');
-    verifySedra(existingSy);
-    return;
-  }
+  /* Kaynak olarak dolu olan ilk alanı kullan */
+  const src=getF('inp_tr')||getF('inp_en')||getF('inp_tr2')||getF('inp_sy');
+  if(!src){showToast('⚠ En az bir alan doldurun');return;}
+  const existingSy=getF('inp_sy');
+  if(existingSy){ showToast('✦ SEDRA doğrulanıyor...'); verifySedra(existingSy); return; }
+  const isScript=/[\u0700-\u074F]/.test(src);
+  const isTranslit=!isScript&&(src===getF('inp_tr2'));
+  const langHint=getF('inp_tr')===src?'Türkçe':getF('inp_en')===src?'İngilizce':isTranslit?'Süryanice (transliterasyon)':'genel';
   const btn=document.getElementById('fetchSyBtn');
   btn.textContent='⏳';btn.disabled=true;
   try{
-    const data=await askClaude(word);
+    const data=await _askClaudeSmart(src, langHint);
     const syScript=(data.sy||'').split('(')[0].trim();
-    if(syScript) document.getElementById('inp_sy').value=syScript;
-    const autoTranslit = syScript ? syriacToLatin(syScript) : '';
-    if(autoTranslit) document.getElementById('inp_tr2').value=autoTranslit;
-    if(data.en&&!document.getElementById('inp_en').value) document.getElementById('inp_en').value=data.en;
-    if(data.type) document.getElementById('inp_type').value=data.type;
+    if(syScript) setF('inp_sy',syScript);
+    const autoTr2=syScript?syriacToLatin(syScript):'';
+    if(autoTr2) setF('inp_tr2',autoTr2);
+    setF('inp_en',data.en||'');
+    setF('inp_tr',data.tr||'');
+    if(data.type) setF('inp_type',data.type);
     showToast('✦ Süryanice getirildi, SEDRA doğrulanıyor...');
     if(syScript) verifySedra(syScript);
-  }catch(e){
-    showToast('⚠ '+e.message);
-  }finally{
-    btn.textContent='ܐ Getir';btn.disabled=false;
-  }
-}
-
-/* ── OTOMATİK SÜRYANİCE GETIR (arka plan) ───── */
-async function fetchSyriacAuto(word, sourceLang){
-  if(!getClaudeKey()) return;
-  if(document.getElementById('inp_sy').value.trim()) return; // zaten doluysa dokunma
-  const btn=document.getElementById('fetchSyBtn');
-  btn.textContent='⏳';btn.disabled=true;
-  try{
-    const data=await askClaude(word);
-    const syScript=(data.sy||'').split('(')[0].trim();
-    if(syScript && !document.getElementById('inp_sy').value.trim()){
-      document.getElementById('inp_sy').value=syScript;
-    }
-    const autoTranslit = syScript ? syriacToLatin(syScript) : '';
-    if(autoTranslit && !document.getElementById('inp_tr2').value.trim()){
-      document.getElementById('inp_tr2').value=autoTranslit;
-    }
-    if(data.en && !document.getElementById('inp_en').value.trim()) document.getElementById('inp_en').value=data.en;
-    if(data.tr && !document.getElementById('inp_tr').value.trim()) document.getElementById('inp_tr').value=data.tr;
-    if(data.type && !document.getElementById('inp_type').value) document.getElementById('inp_type').value=data.type;
-    if(syScript) verifySedra(syScript);
-  }catch(e){
-    console.warn('Auto Syriac fetch failed:', e);
-  }finally{
-    btn.textContent='ܐ Getir';btn.disabled=false;
-  }
-}
-
-/* ── TRANSLİTERASYON → SÜRYANİCE + TR/EN ────── */
-let autoFetchTranslitTimer=null;
-function scheduleAutoFetchTranslit(){
-  clearTimeout(autoFetchTranslitTimer);
-  const val=document.getElementById('inp_tr2').value.trim();
-  if(!val) return;
-
-  // Transliterasyondan Süryanice alfabe üret (anlık, gecikme olmadan)
-  const syFromTranslit=latinToSyriac(val);
-  if(syFromTranslit && !document.getElementById('inp_sy').value.trim()){
-    document.getElementById('inp_sy').value=syFromTranslit;
-  }
-
-  // TR ve EN çekimi için de schedule et
-  autoFetchTranslitTimer=setTimeout(async ()=>{
-    // Eğer hem TR hem EN boşsa, Claude'dan çek
-    const trEmpty=!document.getElementById('inp_tr').value.trim();
-    const enEmpty=!document.getElementById('inp_en').value.trim();
-    if((trEmpty||enEmpty) && getClaudeKey()){
-      try{
-        const data=await askClaude(val);
-        if(data.tr && trEmpty) document.getElementById('inp_tr').value=data.tr;
-        if(data.en && enEmpty) document.getElementById('inp_en').value=data.en;
-        if(data.type && !document.getElementById('inp_type').value) document.getElementById('inp_type').value=data.type;
-        // Süryanice de gelmişse ve boşsa doldur
-        if(data.sy){
-          const syScript=(data.sy||'').split('(')[0].trim();
-          if(syScript && !document.getElementById('inp_sy').value.trim()){
-            document.getElementById('inp_sy').value=syScript;
-          }
-        }
-      }catch(e){ console.warn('Translit fetch failed:', e); }
-    } else if(trEmpty || enEmpty){
-      // API key yoksa MyMemory ile dene (transliterasyonu İngilizce olarak kullan)
-      if(enEmpty){
-        try{
-          const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(val)+'&langpair=en|tr');
-          const d=await r.json();
-          const t=d?.responseData?.translatedText;
-          if(t && t.toLowerCase()!==val.toLowerCase() && trEmpty) document.getElementById('inp_tr').value=t;
-        }catch(e){}
-      }
-    }
-  },800);
+  }catch(e){ showToast('⚠ '+e.message); }
+  finally{ btn.textContent='ܐ Getir';btn.disabled=false; }
 }
 
 /* ── LATİN → SÜRYANİCE ALFABE ───────────────── */
